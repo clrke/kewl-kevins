@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from "styled-components";
+import styled from 'styled-components';
 import findMoveDistance from '../helpers/findMoveDistance';
 import findObstaclePosition from '../helpers/findObstaclePosition';
 import useTiles, { Tile, TileSpecial, TileType } from '../hooks/useTiles';
 import Coordinates from '../models/Coordinates';
+import '../App.css';
 
 const Container = styled.div`
   position: absolute;
@@ -15,6 +16,9 @@ const GameController = styled.div`
   position: fixed;
   z-index: 3;
 `;
+const ArrowKeys = styled.div`
+  text-align: center;
+`;
 
 interface PlayerProps {
   position: Coordinates;
@@ -23,8 +27,8 @@ interface PlayerProps {
 
 const Player = styled.div<PlayerProps>`
   position: absolute;
-  top: ${props => (props.position.y - 1) * 32}px;
-  left: ${props => props.position.x * 32}px;
+  top: ${(props) => (props.position.y - 1) * 32}px;
+  left: ${(props) => props.position.x * 32}px;
   width: 32px;
   height: 64px;
   background-color: #8f8;
@@ -32,11 +36,16 @@ const Player = styled.div<PlayerProps>`
   border: 2px solid #000;
   border-radius: 32px;
   z-index: 2;
-  transition: all ${props => props.transitionSeconds}s linear;
+  transition: all ${(props) => props.transitionSeconds}s linear;
 `;
 
-export default function GameObjects(props: {tiles: Tile[][], screenShake: () => void}) {
-  const [playerPosition, setPlayerPosition] = useState<Coordinates>(new Coordinates(51, 102));
+export default function GameObjects(props: {
+  tiles: Tile[][];
+  screenShake: () => void;
+}) {
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>(
+    new Coordinates(51, 102)
+  );
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
 
@@ -52,7 +61,7 @@ export default function GameObjects(props: {tiles: Tile[][], screenShake: () => 
     const moveDistance = findMoveDistance({
       positionA: playerPosition,
       positionB: newPosition,
-    })
+    });
 
     setMoveDistance(moveDistance);
     setPlayerPosition(newPosition);
@@ -60,8 +69,11 @@ export default function GameObjects(props: {tiles: Tile[][], screenShake: () => 
 
     setTimeout(() => {
       window.scrollTo({
-        left: 32 * (newPosition.x + playerPosition.x) / 2 - window.innerWidth / 2,
-        top: 32 * (newPosition.y + playerPosition.y) / 2 - window.innerHeight / 2,
+        left:
+          (32 * (newPosition.x + playerPosition.x)) / 2 - window.innerWidth / 2,
+        top:
+          (32 * (newPosition.y + playerPosition.y)) / 2 -
+          window.innerHeight / 2,
         behavior: 'smooth',
       });
     }, moveDistance * 16);
@@ -75,7 +87,9 @@ export default function GameObjects(props: {tiles: Tile[][], screenShake: () => 
     }, moveDistance * 32);
 
     setTimeout(() => {
-      setPlayerPosition(new Coordinates(newPosition.x, newPosition.y).minus(playerMovement));
+      setPlayerPosition(
+        new Coordinates(newPosition.x, newPosition.y).minus(playerMovement)
+      );
       setMoveDistance(1);
       props.screenShake();
     }, (moveDistance + 1) * 50);
@@ -89,10 +103,32 @@ export default function GameObjects(props: {tiles: Tile[][], screenShake: () => 
     <Container>
       {!moving && (
         <GameController>
-          <button onClick={() => slide(new Coordinates(0, -1))}>Up</button>
-          <button onClick={() => slide(new Coordinates(0, 1))}>Down</button>
-          <button onClick={() => slide(new Coordinates(-1, 0))}>Left</button>
-          <button onClick={() => slide(new Coordinates(1, 0))}>Right</button>
+          <ArrowKeys>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(0, -1))}
+            >
+              U
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(0, 1))}
+            >
+              D
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(-1, 0))}
+            >
+              L
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(1, 0))}
+            >
+              R
+            </button>
+          </ArrowKeys>
         </GameController>
       )}
       <Player
@@ -100,5 +136,5 @@ export default function GameObjects(props: {tiles: Tile[][], screenShake: () => 
         transitionSeconds={moveDistance * 0.049}
       />
     </Container>
-  )
+  );
 }
