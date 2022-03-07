@@ -23,7 +23,10 @@ export type Tile = {
   special?: TileSpecial,
 };
 
-export default function useTiles() {
+export default function useTiles(props: {
+  start: {x: number, y: number},
+  end: {x: number, y: number},
+}) {
   const [tiles, setTiles] = useState<Tile[][] | undefined>();
 
   useEffect(() => {
@@ -63,13 +66,13 @@ export default function useTiles() {
             special: TileSpecial.BOTTOMRIGHT,
           };
         }
-        if (x === 51 && y === 102) {
+        if (x === props.start.x && y === props.start.y) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.ENTRANCE,
           };
         }
-        if (x === 71 && y === 0) {
+        if (x === props.end.x && y === props.end.y) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.EXIT,

@@ -1,7 +1,8 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import styled from "styled-components";
 import useTiles, { Tile, TileSpecial, TileType } from './hooks/useTiles';
+import GameObjects from './components/GameObjects';
 
 const Container = styled.div`
 `;
@@ -22,7 +23,7 @@ const BorderTile = styled.div<BorderTileProps>`
   position: relative;
   background-color: #000;
 
-  ${props => props.special === TileSpecial.ENTRANCE && `background-color: #8f8;`}
+  ${props => props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
   ${props => props.special === TileSpecial.EXIT && `background-color: #f88;`}
 `;
 
@@ -53,7 +54,10 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
 `;
 
 function App() {
-  const tiles = useTiles();
+  const tiles = useTiles({
+    start: { x: 51, y: 102 },
+    end: { x: 31, y: 0 },
+  });
   const [gameStarted, setGameStarted] = useState(false);
 
   const topLeft = useRef<HTMLDivElement>(null);
@@ -101,6 +105,7 @@ function App() {
 
   return (
     <Container>
+      {tiles && <GameObjects tiles={tiles} />}
       {tiles && tiles.map((row, j) => (
         <TileRow key={j}>
           {row.map((tile, i) => tile.type === TileType.PLAIN ? (
