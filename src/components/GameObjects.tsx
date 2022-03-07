@@ -35,7 +35,7 @@ const Player = styled.div<PlayerProps>`
   transition: all ${props => props.transitionSeconds}s linear;
 `;
 
-export default function GameObjects(props: {tiles: Tile[][]}) {
+export default function GameObjects(props: {tiles: Tile[][], screenShake: () => void}) {
   const [playerPosition, setPlayerPosition] = useState<Coordinates>(new Coordinates(51, 102));
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
@@ -47,7 +47,8 @@ export default function GameObjects(props: {tiles: Tile[][]}) {
       playerPosition,
       playerMovement,
       obstacles: [],
-    });
+    }).minus(playerMovement);
+
     const moveDistance = findMoveDistance({
       positionA: playerPosition,
       positionB: newPosition,
@@ -74,22 +75,29 @@ export default function GameObjects(props: {tiles: Tile[][]}) {
     }, moveDistance * 32);
 
     setTimeout(() => {
-      // TODO: add bounce first before setting moving to false.
+      setPlayerPosition(new Coordinates(newPosition.x, newPosition.y).minus(playerMovement));
+      setMoveDistance(1);
+      props.screenShake();
+    }, (moveDistance + 1) * 50);
+
+    setTimeout(() => {
       setMoving(false);
-    }, moveDistance * 50);
+    }, (moveDistance + 2) * 50);
   }
 
   return (
     <Container>
-      <GameController>
-        <button onClick={() => slide({ x: 0, y: -1 })}>Up</button>
-        <button onClick={() => slide({ x: 0, y: 1 })}>Down</button>
-        <button onClick={() => slide({ x: -1, y: 0 })}>Left</button>
-        <button onClick={() => slide({ x: 1, y: 0 })}>Right</button>
-      </GameController>
+      {!moving && (
+        <GameController>
+          <button onClick={() => slide(new Coordinates(0, -1))}>Up</button>
+          <button onClick={() => slide(new Coordinates(0, 1))}>Down</button>
+          <button onClick={() => slide(new Coordinates(-1, 0))}>Left</button>
+          <button onClick={() => slide(new Coordinates(1, 0))}>Right</button>
+        </GameController>
+      )}
       <Player
         position={playerPosition}
-        transitionSeconds={moveDistance * 0.05}
+        transitionSeconds={moveDistance * 0.049}
       />
     </Container>
   )
