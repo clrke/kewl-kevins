@@ -59,11 +59,19 @@ export default function GameObjects(props: {tiles: Tile[][]}) {
 
     setTimeout(() => {
       window.scrollTo({
+        left: 32 * (newPosition.x + playerPosition.x) / 2 - window.innerWidth / 2,
+        top: 32 * (newPosition.y + playerPosition.y) / 2 - window.innerHeight / 2,
+        behavior: 'smooth',
+      });
+    }, moveDistance * 16);
+
+    setTimeout(() => {
+      window.scrollTo({
         left: 32 * newPosition.x - window.innerWidth / 2,
         top: 32 * newPosition.y - window.innerHeight / 2,
         behavior: 'smooth',
       });
-    }, moveDistance * 25);
+    }, moveDistance * 32);
 
     setTimeout(() => {
       setMoving(false);
