@@ -39,7 +39,10 @@ const Player = styled.div<PlayerProps>`
   transition: all ${(props) => props.transitionSeconds}s linear;
 `;
 
-export default function GameObjects(props: { tiles: Tile[][] }) {
+export default function GameObjects(props: {
+  tiles: Tile[][];
+  screenShake: () => void;
+}) {
   const [playerPosition, setPlayerPosition] = useState<Coordinates>(
     new Coordinates(51, 102)
   );
@@ -53,7 +56,8 @@ export default function GameObjects(props: { tiles: Tile[][] }) {
       playerPosition,
       playerMovement,
       obstacles: [],
-    });
+    }).minus(playerMovement);
+
     const moveDistance = findMoveDistance({
       positionA: playerPosition,
       positionB: newPosition,
@@ -83,42 +87,53 @@ export default function GameObjects(props: { tiles: Tile[][] }) {
     }, moveDistance * 32);
 
     setTimeout(() => {
-      // TODO: add bounce first before setting moving to false.
+      setPlayerPosition(
+        new Coordinates(newPosition.x, newPosition.y).minus(playerMovement)
+      );
+      setMoveDistance(1);
+      props.screenShake();
+    }, (moveDistance + 1) * 50);
+
+    setTimeout(() => {
       setMoving(false);
-    }, moveDistance * 50);
+    }, (moveDistance + 2) * 50);
   }
 
   return (
     <Container>
-      <GameController>
-        <ArrowKeys>
-          <button
-            className="game-button"
-            onClick={() => slide({ x: 0, y: -1 })}
-          >
-            U
-          </button>
-          <br />
-          <button
-            className="game-button"
-            onClick={() => slide({ x: -1, y: 0 })}
-          >
-            L
-          </button>
-
-          <button className="game-button" onClick={() => slide({ x: 1, y: 0 })}>
-            R
-          </button>
-          <br />
-
-          <button className="game-button" onClick={() => slide({ x: 0, y: 1 })}>
-            D
-          </button>
-        </ArrowKeys>
-      </GameController>
+      {!moving && (
+        <GameController>
+          <ArrowKeys>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(0, -1))}
+            >
+              U
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(0, 1))}
+            >
+              D
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(-1, 0))}
+            >
+              L
+            </button>
+            <button
+              className="game-button"
+              onClick={() => slide(new Coordinates(1, 0))}
+            >
+              R
+            </button>
+          </ArrowKeys>
+        </GameController>
+      )}
       <Player
         position={playerPosition}
-        transitionSeconds={moveDistance * 0.05}
+        transitionSeconds={moveDistance * 0.049}
       />
     </Container>
   );

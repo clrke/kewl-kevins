@@ -1,10 +1,51 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import useTiles, { Tile, TileSpecial, TileType } from './hooks/useTiles';
 import GameObjects from './components/GameObjects';
 
-const Container = styled.div`
+interface ContainerProps {
+  shaking: boolean;
+}
+
+const shakeAnimation = keyframes`
+  0% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(0, -5px);
+  }
+  20% {
+    transform: translate(0, 5px);
+  }
+  30% {
+    transform: translate(0, -5px);
+  }
+  40% {
+    transform: translate(0, 5px);
+  }
+  50% {
+    transform: translate(0, -5px);
+  }
+  60% {
+    transform: translate(0, 5px);
+  }
+  70% {
+    transform: translate(0, -5px);
+  }
+  80% {
+    transform: translate(0, 5px);
+  }
+  90% {
+    transform: translate(0, -5px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+`;
+
+const Container = styled.div<ContainerProps>`
+  ${props => props.shaking && css`animation: ${shakeAnimation} 0.5s linear;`}
 `;
 
 const TileRow = styled.div`
@@ -59,6 +100,7 @@ function App() {
     end: { x: 31, y: 0 },
   });
   const [gameStarted, setGameStarted] = useState(false);
+  const [shaking, setShaking] = useState(false);
 
   const topLeft = useRef<HTMLDivElement>(null);
   const topRight = useRef<HTMLDivElement>(null);
@@ -91,6 +133,11 @@ function App() {
 
   }, [tiles, topRight, bottomRight, bottomLeft, topLeft, exit, entrance]);
 
+  function screenShake() {
+    setShaking(true);
+    setTimeout(() => setShaking(false), 500);
+  }
+
   function getRef(tile: Tile) {
     switch (tile.special) {
       case TileSpecial.TOPLEFT: return topLeft;
@@ -104,8 +151,8 @@ function App() {
   }
 
   return (
-    <Container>
-      {tiles && <GameObjects tiles={tiles} />}
+    <Container shaking={shaking}>
+      {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
       {tiles && tiles.map((row, j) => (
         <TileRow key={j}>
           {row.map((tile, i) => tile.type === TileType.PLAIN ? (
