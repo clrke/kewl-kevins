@@ -74,6 +74,7 @@ export default function GameObjects(props: {tiles: Tile[][]}) {
     }, moveDistance * 32);
 
     setTimeout(() => {
+      // TODO: add bounce first before setting moving to false.
       setMoving(false);
     }, moveDistance * 50);
   }
