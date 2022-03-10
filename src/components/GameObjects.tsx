@@ -5,6 +5,8 @@ import findObstaclePosition from '../helpers/findObstaclePosition';
 import useTiles, { Tile, TileSpecial, TileType } from '../hooks/useTiles';
 import Coordinates from '../models/Coordinates';
 import '../App.css';
+import useSound from 'use-sound';
+import slideSfx from '../audio/slideSfx.mp3';
 
 const Container = styled.div`
   position: absolute;
@@ -48,9 +50,12 @@ export default function GameObjects(props: {
   );
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
+  const [playSlideSfx] = useSound(slideSfx);
 
   function slide(playerMovement: Coordinates) {
     if (moving) return;
+
+    playSlideSfx()
 
     const newPosition = findObstaclePosition({
       playerPosition,
