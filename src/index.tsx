@@ -3,10 +3,23 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+import { MoralisProvider } from 'react-moralis';
+import {
+  MORALIS_SERVER_URL,
+  MORALIS_APP_ID,
+} from './constants/moralisConstants';
+import { MetaMaskProvider } from 'metamask-react';
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <MetaMaskProvider>
+      <MoralisProvider
+        appId={MORALIS_APP_ID}
+        serverUrl={MORALIS_SERVER_URL}
+        initializeOnMount
+      >
+        <App />
+      </MoralisProvider>
+    </MetaMaskProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
-import styled, { css, keyframes } from "styled-components";
+import styled, { css, keyframes } from 'styled-components';
 import useTiles, { Tile, TileSpecial, TileType } from './hooks/useTiles';
 import GameObjects from './components/GameObjects';
+import ConnectionBtn from './components/ConnectionBtn';
 
 interface ContainerProps {
   shaking: boolean;
@@ -45,12 +46,16 @@ const shakeAnimation = keyframes`
 `;
 
 const Container = styled.div<ContainerProps>`
-  ${props => props.shaking && css`animation: ${shakeAnimation} 0.5s linear;`}
+  ${(props) =>
+    props.shaking &&
+    css`
+      animation: ${shakeAnimation} 0.5s linear;
+    `}
 `;
 
 const TileRow = styled.div`
   white-space: nowrap;
-  line-height:0;
+  line-height: 0;
 `;
 
 interface BorderTileProps {
@@ -64,8 +69,9 @@ const BorderTile = styled.div<BorderTileProps>`
   position: relative;
   background-color: #000;
 
-  ${props => props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
-  ${props => props.special === TileSpecial.EXIT && `background-color: #f88;`}
+  ${(props) =>
+    props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
+  ${(props) => props.special === TileSpecial.EXIT && `background-color: #f88;`}
 `;
 
 const PlainTile = styled.div`
@@ -77,7 +83,7 @@ const PlainTile = styled.div`
 `;
 
 interface PlainTileSpotProps {
-  position: { x: number, y: number };
+  position: { x: number; y: number };
   special?: TileSpecial;
 }
 
@@ -85,13 +91,13 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
   style: {
     top: `${props.position.x}px`,
     left: `${props.position.y}px`,
-  }
-})) <PlainTileSpotProps>`
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border-radius: 4px;
-    background-color: #eee;
+  },
+}))<PlainTileSpotProps>`
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
+  background-color: #eee;
 `;
 
 function App() {
@@ -111,13 +117,23 @@ function App() {
 
   function scrollTo(ref: React.RefObject<HTMLDivElement>) {
     const e = ref.current!;
-    window.scroll(e.offsetLeft - window.innerWidth / 2, e.offsetTop - window.innerHeight / 2);
+    window.scroll(
+      e.offsetLeft - window.innerWidth / 2,
+      e.offsetTop - window.innerHeight / 2
+    );
   }
 
   useEffect(() => {
-    const scrolls = [topRight, bottomRight, bottomLeft, topLeft, exit, entrance];
+    const scrolls = [
+      topRight,
+      bottomRight,
+      bottomLeft,
+      topLeft,
+      exit,
+      entrance,
+    ];
 
-    if (scrolls.filter(x => !x.current).length) {
+    if (scrolls.filter((x) => !x.current).length) {
       return;
     }
 
@@ -130,7 +146,6 @@ function App() {
     }
 
     scrollAndScroll(0, () => setGameStarted(true));
-
   }, [tiles, topRight, bottomRight, bottomLeft, topLeft, exit, entrance]);
 
   function screenShake() {
@@ -140,38 +155,48 @@ function App() {
 
   function getRef(tile: Tile) {
     switch (tile.special) {
-      case TileSpecial.TOPLEFT: return topLeft;
-      case TileSpecial.TOPRIGHT: return topRight;
-      case TileSpecial.BOTTOMLEFT: return bottomLeft;
-      case TileSpecial.BOTTOMRIGHT: return bottomRight;
-      case TileSpecial.ENTRANCE: return entrance;
-      case TileSpecial.EXIT: return exit;
-      default: return null;
+      case TileSpecial.TOPLEFT:
+        return topLeft;
+      case TileSpecial.TOPRIGHT:
+        return topRight;
+      case TileSpecial.BOTTOMLEFT:
+        return bottomLeft;
+      case TileSpecial.BOTTOMRIGHT:
+        return bottomRight;
+      case TileSpecial.ENTRANCE:
+        return entrance;
+      case TileSpecial.EXIT:
+        return exit;
+      default:
+        return null;
     }
   }
 
   return (
-    <Container shaking={shaking}>
-      {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
-      {tiles && tiles.map((row, j) => (
-        <TileRow key={j}>
-          {row.map((tile, i) => tile.type === TileType.PLAIN ? (
-            <PlainTile key={i}>
-              <PlainTileSpot
-                position={tile.spot}
-                ref={getRef(tile)}
-              />
-            </PlainTile>
-          ) : (
-            <BorderTile
-              key={i}
-              ref={getRef(tile)}
-              special={tile.special}
-            />
+    <div>
+      <ConnectionBtn />
+      <Container shaking={shaking}>
+        {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
+        {tiles &&
+          tiles.map((row, j) => (
+            <TileRow key={j}>
+              {row.map((tile, i) =>
+                tile.type === TileType.PLAIN ? (
+                  <PlainTile key={i}>
+                    <PlainTileSpot position={tile.spot} ref={getRef(tile)} />
+                  </PlainTile>
+                ) : (
+                  <BorderTile
+                    key={i}
+                    ref={getRef(tile)}
+                    special={tile.special}
+                  />
+                )
+              )}
+            </TileRow>
           ))}
-        </TileRow>
-      ))}
-    </Container>
+      </Container>
+    </div>
   );
 }
 
