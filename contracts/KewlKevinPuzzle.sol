@@ -70,11 +70,23 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         return 0;
     }
 
-    function _newDirection(uint256 direction, uint256 seed)
+    function _newDirection(Coordinates memory cursor, uint256 direction, uint256 seed)
         internal
         pure
         returns (uint256)
     {
+        if ((direction == UP || direction == DOWN) && cursor.x == 1) {
+            return RIGHT;
+        }
+        if ((direction == UP || direction == DOWN) && cursor.x == PUZZLE_WIDTH - 1) {
+            return LEFT;
+        }
+        if ((direction == LEFT || direction == RIGHT) && cursor.y == 1) {
+            return DOWN;
+        }
+        if ((direction == LEFT || direction == RIGHT) && cursor.y == PUZZLE_HEIGHT - 1) {
+            return UP;
+        }
         uint256 directionTurn = seed % 2 == 1 ? 3 : 1;
         return (direction + directionTurn) % 4;
     }
@@ -84,24 +96,20 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         uint256 direction,
         uint256 rawDistance
     ) internal pure returns (Coordinates memory) {
-        uint256 distance = rawDistance % PUZZLE_HEIGHT;
         if (direction == UP) {
-            return
-                Coordinates(cursor.x, _subtractNoNegative(cursor.y, distance));
+            uint256 distance = 1 + rawDistance % (cursor.y - 1);
+            return Coordinates(cursor.x, _subtractNoNegative(cursor.y, distance));
         }
         if (direction == DOWN) {
-            return
-                Coordinates(
-                    cursor.x,
-                    _min(PUZZLE_HEIGHT - 1, cursor.y + distance)
-                );
+            uint256 distance = 1 + rawDistance % (PUZZLE_HEIGHT - cursor.y - 1);
+            return Coordinates(cursor.x, _min(PUZZLE_HEIGHT - 1, cursor.y + distance));
         }
         if (direction == LEFT) {
-            return
-                Coordinates(_subtractNoNegative(cursor.x, distance), cursor.y);
+            uint256 distance = 1 + rawDistance % (cursor.x - 1);
+            return Coordinates(_subtractNoNegative(cursor.x, distance), cursor.y);
         }
-        return
-            Coordinates(_min(PUZZLE_WIDTH - 1, cursor.x + distance), cursor.y);
+        uint256 distance = 1 + rawDistance % (PUZZLE_WIDTH - cursor.x - 1);
+        return Coordinates(_min(PUZZLE_WIDTH - 1, cursor.x + distance), cursor.y);
     }
 
     function _bounceBackCursor(Coordinates memory obstacle, uint256 direction)
@@ -151,7 +159,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
             obstacles[puzzleLength] = newObstacle;
             cursor = _bounceBackCursor(newObstacle, direction);
             collatzCurrent = collatzNext(collatzCurrent);
-            direction = _newDirection(direction, collatzCurrent);
+            direction = _newDirection(cursor, direction, collatzCurrent);
             collatzCurrent = collatzNext(collatzCurrent);
         }
 
