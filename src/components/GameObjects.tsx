@@ -32,6 +32,13 @@ const GameController = styled.div`
     border: 2px solid #000;
     background-color: #88f;
     color: white;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out;
+
+    :hover {
+      background-color: #44f;
+    }
 
     :first-child {
       right: 54px;
