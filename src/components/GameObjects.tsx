@@ -5,6 +5,7 @@ import findObstaclePosition from '../helpers/findObstaclePosition';
 import useTiles, { Tile, TileSpecial, TileType } from '../hooks/useTiles';
 import Coordinates from '../models/Coordinates';
 import '../App.css';
+import ConnectionBtn from './ConnectionBtn';
 
 const Container = styled.div`
   position: absolute;
@@ -35,8 +36,29 @@ const Player = styled.div<PlayerProps>`
   box-sizing: border-box;
   border: 2px solid #000;
   border-radius: 32px;
-  z-index: 2;
+  z-index: ${(props) => 2 + props.position.y};
   transition: all ${(props) => props.transitionSeconds}s linear;
+`;
+
+interface ObstacleProps {
+  position: Coordinates;
+}
+
+const Obstacle = styled.div<ObstacleProps>`
+  position: absolute;
+  top: ${(props) => (props.position.y - 1) * 32}px;
+  left: ${(props) => props.position.x * 32}px;
+  width: 32px;
+  height: 64px;
+  background-color: #f88;
+  box-sizing: border-box;
+  border: 2px solid #000;
+  border-radius: 32px;
+  z-index: ${(props) => 2 + props.position.y};
+`;
+
+const ConnectionBtnContainer = styled.div`
+  position: absolute;
 `;
 
 export default function GameObjects(props: {
@@ -48,15 +70,40 @@ export default function GameObjects(props: {
   );
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
+  const [obstacles, setObstacles] = useState([
+    new Coordinates(51, 35),
+    new Coordinates(0, 37),
+    new Coordinates(2, 12),
+    new Coordinates(40, 14),
+    new Coordinates(38, 0),
+    new Coordinates(0, 2),
+    new Coordinates(2, 0),
+    new Coordinates(0, 2),
+    new Coordinates(2, 54),
+    new Coordinates(0, 52),
+    new Coordinates(2, 32),
+    new Coordinates(7, 34),
+    new Coordinates(5, 42),
+    new Coordinates(3, 40),
+    new Coordinates(5, 4),
+  ]);
+
+  function removeObstacle(obstaclePosition: Coordinates) {
+    setObstacles(
+      obstacles.filter((obstacle) => !obstacle.equals(obstaclePosition))
+    );
+  }
 
   function slide(playerMovement: Coordinates) {
     if (moving) return;
 
-    const newPosition = findObstaclePosition({
+    const obstaclePosition = findObstaclePosition({
       playerPosition,
       playerMovement,
-      obstacles: [],
-    }).minus(playerMovement);
+      obstacles,
+    });
+
+    const newPosition = obstaclePosition.minus(playerMovement);
 
     const moveDistance = findMoveDistance({
       positionA: playerPosition,
@@ -92,6 +139,7 @@ export default function GameObjects(props: {
       );
       setMoveDistance(1);
       props.screenShake();
+      removeObstacle(obstaclePosition);
     }, (moveDistance + 1) * 50);
 
     setTimeout(() => {
@@ -135,6 +183,12 @@ export default function GameObjects(props: {
         position={playerPosition}
         transitionSeconds={moveDistance * 0.049}
       />
+      {obstacles.map((obstacle) => (
+        <Obstacle position={obstacle} />
+      ))}
+      <ConnectionBtnContainer>
+        <ConnectionBtn />
+      </ConnectionBtnContainer>
     </Container>
   );
 }

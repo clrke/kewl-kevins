@@ -8,4 +8,8 @@ export default class Coordinates {
   minus(subtrahend: Coordinates): Coordinates {
     return new Coordinates(this.x - subtrahend.x, this.y - subtrahend.y);
   }
+
+  equals(b: Coordinates) {
+    return this.x === b.x && this.y === b.y;
+  }
 }
