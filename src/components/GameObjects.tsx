@@ -5,6 +5,8 @@ import findObstaclePosition from '../helpers/findObstaclePosition';
 import useTiles, { Tile, TileSpecial, TileType } from '../hooks/useTiles';
 import Coordinates from '../models/Coordinates';
 import '../App.css';
+import useSound from 'use-sound';
+import slideSfx from '../audio/slideSfx.mp3';
 import ConnectionBtn from './ConnectionBtn';
 
 const Container = styled.div`
@@ -70,6 +72,8 @@ export default function GameObjects(props: {
   );
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
+  const [playSlideSfx] = useSound(slideSfx);
+
   const [obstacles, setObstacles] = useState([
     new Coordinates(51, 36),
     new Coordinates(1, 38),
@@ -97,7 +101,9 @@ export default function GameObjects(props: {
   function slide(playerMovement: Coordinates) {
     if (moving) return;
 
-    const obstaclePosition = findObstaclePosition({
+    playSlideSfx()
+
+    const newPosition = findObstaclePosition({
       playerPosition,
       playerMovement,
       obstacles,

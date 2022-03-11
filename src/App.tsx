@@ -4,6 +4,9 @@ import styled, { css, keyframes } from 'styled-components';
 import useTiles, { Tile, TileSpecial, TileType } from './hooks/useTiles';
 import GameObjects from './components/GameObjects';
 import ConnectionBtn from './components/ConnectionBtn';
+import useSound from 'use-sound';
+import startGameSfx from './audio/startGameSfx.mp3';
+import obstacleBumpSfx from './audio/obstacleBumpSfx.mp3';
 
 interface ContainerProps {
   shaking: boolean;
@@ -114,7 +117,9 @@ function App() {
   const bottomRight = useRef<HTMLDivElement>(null);
   const entrance = useRef<HTMLDivElement>(null);
   const exit = useRef<HTMLDivElement>(null);
-
+  const [playStartGameSfx] = useSound(startGameSfx);
+  const [playobstacleBumpSfx] = useSound(obstacleBumpSfx);
+  
   function scrollTo(ref: React.RefObject<HTMLDivElement>) {
     const e = ref.current!;
     window.scroll(
@@ -124,6 +129,11 @@ function App() {
   }
 
   useEffect(() => {
+    console.log('test')
+    playStartGameSfx();
+  }, [gameStarted]) 
+
+  useEffect(() => {  
     const scrolls = [
       topRight,
       bottomRight,
@@ -150,6 +160,7 @@ function App() {
 
   function screenShake() {
     setShaking(true);
+    playobstacleBumpSfx();
     setTimeout(() => setShaking(false), 500);
   }
 
