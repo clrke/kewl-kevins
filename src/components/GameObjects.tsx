@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import styled from 'styled-components';
 import findMoveDistance from '../helpers/findMoveDistance';
 import findObstaclePosition from '../helpers/findObstaclePosition';
@@ -7,15 +7,25 @@ import Coordinates from '../models/Coordinates';
 import '../App.css';
 import useSound from 'use-sound';
 import slideSfx from '../audio/slideSfx.mp3';
-import ConnectionSection from "./ConnectionSection";
-import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from "../constants/tiles";
+import ConnectionSection from './ConnectionSection';
+import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from '../constants/tiles';
+import { CONTRACT_ADDRESS } from '../constants/moralisConstants';
+
+import { useMoralis, useWeb3ExecuteFunction } from 'react-moralis';
 
 const Container = styled.div`
   position: absolute;
   width: ${() => `${32 * (PUZZLE_WIDTH + 2)}px`};
   height: ${() => `${32 * (PUZZLE_HEIGHT + 2)}px`};
 `;
-
+const PuzzleCoordinateContainer = styled.div`
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 240px;
+  height: 280px;
+  z-index: 200;
+`;
 const GameController = styled.div`
   position: fixed;
   bottom: 24px;
@@ -87,9 +97,11 @@ interface ObstacleProps {
 
 const Obstacle = styled.div<ObstacleProps>`
   position: absolute;
-  top: ${(props) => (props.position.y - 1 + (props.bumpInfo?.direction.y || 0)) * 32}px;
-  left: ${(props) => (props.position.x + (props.bumpInfo?.direction.x || 0)) * 32}px;
-  opacity: ${props => props.bumpInfo ? 0 : 1};
+  top: ${(props) =>
+    (props.position.y - 1 + (props.bumpInfo?.direction.y || 0)) * 32}px;
+  left: ${(props) =>
+    (props.position.x + (props.bumpInfo?.direction.x || 0)) * 32}px;
+  opacity: ${(props) => (props.bumpInfo ? 0 : 1)};
   width: 32px;
   height: 64px;
   background-color: #f88;
@@ -101,14 +113,17 @@ const Obstacle = styled.div<ObstacleProps>`
 `;
 
 type BumpInfo = {
-  position: Coordinates,
-  direction: Coordinates,
-}
+  position: Coordinates;
+  direction: Coordinates;
+};
 
 const ADD_BUMP = 'ADD_BUMP';
 type BUMP_ACTIONS = typeof ADD_BUMP;
 
-function bumpReducer(state: BumpInfo[], action: { type: BUMP_ACTIONS; payload: BumpInfo }) {
+function bumpReducer(
+  state: BumpInfo[],
+  action: { type: BUMP_ACTIONS; payload: BumpInfo }
+) {
   switch (action.type) {
     case ADD_BUMP:
       return [...state, action.payload];
@@ -124,9 +139,61 @@ export default function GameObjects(props: {
   const [playerPosition, setPlayerPosition] = useState<Coordinates>(
     new Coordinates(51, 62)
   );
+  //Moralis
+  const { authenticate, isAuthenticated, isAuthenticating, Moralis } =
+    useMoralis();
+
+  //Web3
+  const web3 = useWeb3ExecuteFunction();
+
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
   const [playSlideSfx] = useSound(slideSfx);
+  const [size, setSize] = useState<number>(0);
+  const [web3Provider, setWeb3Provider] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      const newWeb3Provider = await Moralis.enableWeb3();
+      if (newWeb3Provider) {
+        const network = await newWeb3Provider.detectNetwork();
+        if (network.name !== 'maticmum') {
+          alert('Please connect to the Polygon Mumbai network.');
+          await Moralis.deactivateWeb3();
+          return;
+        }
+        setWeb3Provider(newWeb3Provider);
+      }
+    })();
+  }, []);
+
+  async function refreshMintSupplies() {
+    if (web3Provider) {
+      // setSize();
+      //   await Moralis.executeFunction({
+      //     contractAddress: CONTRACT_ADDRESS,
+      //     functionName: 'puzzle',
+      //   })
+    }
+  }
+
+  const handleClickSize = async () => {
+    await web3
+      .fetch({
+        params: {
+          contractAddress: CONTRACT_ADDRESS,
+          functionName: 'puzzle',
+          // abi: CONTRACT_ABI,
+          msgValue: size,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const [obstacles, setObstacles] = useState([
     new Coordinates(51, 36), // up
@@ -158,12 +225,14 @@ export default function GameObjects(props: {
     });
   }
 
-  const existingObstacles = obstacles.filter(obstacle => !bumps.map(bump => bump.position).includes(obstacle));
+  const existingObstacles = obstacles.filter(
+    (obstacle) => !bumps.map((bump) => bump.position).includes(obstacle)
+  );
 
   function slide(playerMovement: Coordinates) {
     if (moving) return;
 
-    playSlideSfx()
+    playSlideSfx();
 
     const obstaclePosition = findObstaclePosition({
       playerPosition,
@@ -208,40 +277,45 @@ export default function GameObjects(props: {
       setMoveDistance(1);
       props.screenShake();
       removeObstacle(obstaclePosition, playerMovement);
-    }, 50 + (moveDistance) * 50);
+    }, 50 + moveDistance * 50);
 
     setTimeout(() => {
       setMoving(false);
     }, 50 + (moveDistance + 1) * 50);
   }
 
-  // @ts-ignore
   return (
     <Container>
       {!moving && (
         <GameController>
-          <button onClick={() => slide(new Coordinates(0, -1))}>
-            ▲
-          </button>
-          <button onClick={() => slide(new Coordinates(-1, 0))}>
-            ◀
-          </button>
-          <button onClick={() => slide(new Coordinates(1, 0))}>
-            ▶
-          </button>
-          <button onClick={() => slide(new Coordinates(0, 1))}>
-            ▼
-          </button>
+          <button onClick={() => slide(new Coordinates(0, -1))}>▲</button>
+          <button onClick={() => slide(new Coordinates(-1, 0))}>◀</button>
+          <button onClick={() => slide(new Coordinates(1, 0))}>▶</button>
+          <button onClick={() => slide(new Coordinates(0, 1))}>▼</button>
         </GameController>
       )}
+
       <Player
         position={playerPosition}
         transitionSeconds={moveDistance * 0.05}
       />
       {obstacles.map((obstacle, index) => (
-        <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
+        <Obstacle
+          position={obstacle}
+          key={index}
+          bumpInfo={bumps.filter((bump) => bump.position === obstacle)[0]}
+        />
       ))}
       <ConnectionSection />
+      <PuzzleCoordinateContainer>
+        <input
+          type="text"
+          onChange={(e) => setSize(parseInt(e.target.value))}
+        />
+        <button className="game-button-box" onClick={handleClickSize}>
+          Submit
+        </button>
+      </PuzzleCoordinateContainer>
     </Container>
   );
 }
