@@ -74,7 +74,7 @@ const BorderTile = styled.div<BorderTileProps>`
 
   ${(props) =>
     props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
-  ${(props) => props.special === TileSpecial.EXIT && `background-color: #f88;`}
+  ${(props) => props.special === TileSpecial.EXIT && `background-color: #8f8;`}
 `;
 
 const PlainTile = styled.div`
@@ -106,7 +106,7 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
 function App() {
   const tiles = useTiles({
     start: { x: 51, y: 102 },
-    end: { x: 31, y: 0 },
+    end: { x: 6, y: 0 },
   });
   const [gameStarted, setGameStarted] = useState(false);
   const [shaking, setShaking] = useState(false);
@@ -119,7 +119,7 @@ function App() {
   const exit = useRef<HTMLDivElement>(null);
   const [playStartGameSfx] = useSound(startGameSfx);
   const [playobstacleBumpSfx] = useSound(obstacleBumpSfx);
-  
+
   function scrollTo(ref: React.RefObject<HTMLDivElement>) {
     const e = ref.current!;
     window.scroll(
@@ -131,9 +131,9 @@ function App() {
   useEffect(() => {
     console.log('test')
     playStartGameSfx();
-  }, [gameStarted]) 
+  }, [gameStarted])
 
-  useEffect(() => {  
+  useEffect(() => {
     const scrolls = [
       topRight,
       bottomRight,
