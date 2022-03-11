@@ -126,22 +126,71 @@ export default function GameObjects(props: {
   const [playerDirection, setPlayerDirection] = useState(Direction.DOWN);
 
   const [obstacles, setObstacles] = useState([
-    new Coordinates(51, 36), // up
-    new Coordinates(1, 38), // left
-    new Coordinates(3, 13), // up
-    new Coordinates(41, 15), // right
-    new Coordinates(39, 1), // up
-    new Coordinates(1, 3), // left
-    new Coordinates(3, 1), // up
-    new Coordinates(1, 3), // left (don't do)
-    new Coordinates(3, 55), // down
-    new Coordinates(1, 53), // left
-    new Coordinates(3, 33), // up
-    new Coordinates(8, 35), // right
-    new Coordinates(6, 43), // down
-    new Coordinates(4, 41), // left
-    new Coordinates(6, 5), // up
-  ]);
+    new Coordinates(50,9),
+    new Coordinates(58,11),
+    new Coordinates(56,18),
+    new Coordinates(57,16),
+    new Coordinates(55,40),
+    new Coordinates(25,38),
+    new Coordinates(27,14),
+    new Coordinates(42,16),
+    new Coordinates(40,33),
+    new Coordinates(16,31),
+    new Coordinates(18,25),
+    new Coordinates(24,27),
+    new Coordinates(22,48),
+    new Coordinates(19,46),
+    new Coordinates(21,10),
+    new Coordinates(4,12),
+    new Coordinates(6,2),
+    new Coordinates(9,4),
+    new Coordinates(7,26),
+    new Coordinates(4,24),
+    new Coordinates(6,12),
+    new Coordinates(2,14),
+    new Coordinates(4,9),
+    new Coordinates(2,11),
+    new Coordinates(4,9),
+    new Coordinates(52,11),
+    new Coordinates(50,34),
+    new Coordinates(40,32),
+    new Coordinates(42,25),
+    new Coordinates(51,27),
+    new Coordinates(49,26),
+    new Coordinates(53,28),
+    new Coordinates(51,38),
+    new Coordinates(44,36),
+    new Coordinates(46,59),
+    new Coordinates(51,57),
+    new Coordinates(49,28),
+    new Coordinates(60,30),
+    new Coordinates(58,54),
+    new Coordinates(4,52),
+    new Coordinates(6,19),
+    new Coordinates(33,21),
+    new Coordinates(31,4),
+    new Coordinates(47,6),
+    new Coordinates(45,3),
+    new Coordinates(38,5),
+    new Coordinates(40,38),
+    new Coordinates(29,36),
+    new Coordinates(31,30),
+    new Coordinates(32,32),
+    new Coordinates(30,3),
+    new Coordinates(12,5),
+    new Coordinates(14,19),
+    new Coordinates(33,17),
+    new Coordinates(31,6),
+    new Coordinates(2,8),
+    new Coordinates(4,5),
+    new Coordinates(2,7),
+    new Coordinates(4,29),
+    new Coordinates(55,27),
+    new Coordinates(53,24),
+    new Coordinates(59,26),
+    new Coordinates(57,60),
+    new Coordinates(30,58),
+  ].map(c => new Coordinates(c.x + 1, c.y + 1)));
 
   const [bumps, bumpDispatch] = useReducer(bumpReducer, []);
 

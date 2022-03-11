@@ -106,7 +106,7 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
 function App() {
   const tiles = useTiles({
     start: { x: 51, y: PUZZLE_HEIGHT + 1 },
-    end: { x: 6, y: 0 },
+    end: { x: 32, y: 0 },
   });
   const [gameStarted, setGameStarted] = useState(false);
   const [shaking, setShaking] = useState(false);
