@@ -75,13 +75,17 @@ export enum Direction {
 
 function PlayerSprite(props: PlayerProps) {
   return (
-    <PlayerSvg viewBox="0 0 250 500" width="250" height="500">
+    <PlayerSvg
+      viewBox="0 0 250 500"
+      width="250" height="500"
+      transform={[Direction.LEFT , Direction.RIGHT].includes(props.direction) ? "scale(-1, 1)" : ""}
+    >
       <Skin cx="120" cy="120" rx="100" ry="100">
         <title>Head</title>
       </Skin>
       <g transform="matrix(1, 0, 0, 1, 1, 0)">
         <title>Face</title>
-        {[Direction.LEFT, Direction.DOWN].includes(props.direction) && (
+        {[Direction.RIGHT, Direction.DOWN].includes(props.direction) && (
           <g>
             <title>Left</title>
             <Sclera cx="80" cy="100" rx="25" ry="25" />
@@ -90,7 +94,7 @@ function PlayerSprite(props: PlayerProps) {
             <Teeth x="105" y="150" width="20" height="15" />
           </g>
         )}
-        {[Direction.RIGHT, Direction.DOWN].includes(props.direction) && (
+        {[Direction.LEFT, Direction.DOWN].includes(props.direction) && (
           <g>
             <title>Right</title>
             <Sclera cx="160" cy="100" rx="25" ry="25" />
