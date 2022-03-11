@@ -6,7 +6,7 @@ import GameObjects from './components/GameObjects';
 import useSound from 'use-sound';
 import startGameSfx from './audio/startGameSfx.mp3';
 import obstacleBumpSfx from './audio/obstacleBumpSfx.mp3';
-import { PUZZLE_HEIGHT } from "./constants/tiles";
+import { PUZZLE_HEIGHT, TILE_SIZE } from "./constants/tiles";
 
 interface ContainerProps {
   shaking: boolean;
@@ -66,8 +66,8 @@ interface BorderTileProps {
 }
 
 const BorderTile = styled.div<BorderTileProps>`
-  width: 32px;
-  height: 32px;
+  width: ${TILE_SIZE}px;
+  height: ${TILE_SIZE}px;
   display: inline-block;
   position: relative;
   background-color: #000;
@@ -78,8 +78,8 @@ const BorderTile = styled.div<BorderTileProps>`
 `;
 
 const PlainTile = styled.div`
-  width: 32px;
-  height: 32px;
+  width: ${TILE_SIZE}px;
+  height: ${TILE_SIZE}px;
   display: inline-block;
   position: relative;
   background-color: #fff;
@@ -118,7 +118,7 @@ function App() {
   const entrance = useRef<HTMLDivElement>(null);
   const exit = useRef<HTMLDivElement>(null);
   const [playStartGameSfx] = useSound(startGameSfx);
-  const [playobstacleBumpSfx] = useSound(obstacleBumpSfx);
+  const [playObstacleBumpSfx] = useSound(obstacleBumpSfx);
 
   function scrollTo(ref: React.RefObject<HTMLDivElement>) {
     const e = ref.current!;
@@ -160,7 +160,7 @@ function App() {
 
   function screenShake() {
     setShaking(true);
-    playobstacleBumpSfx();
+    playObstacleBumpSfx();
     setTimeout(() => setShaking(false), 500);
   }
 
@@ -185,7 +185,7 @@ function App() {
 
   return (
     <Container shaking={shaking}>
-      {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
+      {tiles && <GameObjects tiles={tiles} gameStarted={gameStarted} screenShake={screenShake} />}
       {tiles &&
         tiles.map((row, j) => (
           <TileRow key={j}>

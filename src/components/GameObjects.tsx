@@ -8,12 +8,13 @@ import '../App.css';
 import useSound from 'use-sound';
 import slideSfx from '../audio/slideSfx.mp3';
 import ConnectionSection from "./ConnectionSection";
-import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from "../constants/tiles";
+import { PUZZLE_HEIGHT, PUZZLE_WIDTH, TILE_SIZE } from "../constants/tiles";
+import Player, { Direction } from "./Player";
 
 const Container = styled.div`
   position: absolute;
-  width: ${() => `${32 * (PUZZLE_WIDTH + 2)}px`};
-  height: ${() => `${32 * (PUZZLE_HEIGHT + 2)}px`};
+  width: ${() => `${TILE_SIZE * (PUZZLE_WIDTH + 2)}px`};
+  height: ${() => `${TILE_SIZE * (PUZZLE_HEIGHT + 2)}px`};
 `;
 
 const GameController = styled.div`
@@ -61,25 +62,6 @@ const GameController = styled.div`
   }
 `;
 
-interface PlayerProps {
-  position: Coordinates;
-  transitionSeconds: number;
-}
-
-const Player = styled.div<PlayerProps>`
-  position: absolute;
-  top: ${(props) => (props.position.y - 1) * 32}px;
-  left: ${(props) => props.position.x * 32}px;
-  width: 32px;
-  height: 64px;
-  background-color: #8f8;
-  box-sizing: border-box;
-  border: 2px solid #000;
-  border-radius: 32px;
-  z-index: ${(props) => 2 + props.position.y};
-  transition: all ${(props) => props.transitionSeconds}s linear;
-`;
-
 interface ObstacleProps {
   position: Coordinates;
   bumpInfo?: BumpInfo;
@@ -87,15 +69,15 @@ interface ObstacleProps {
 
 const Obstacle = styled.div<ObstacleProps>`
   position: absolute;
-  top: ${(props) => (props.position.y - 1 + (props.bumpInfo?.direction.y || 0)) * 32}px;
-  left: ${(props) => (props.position.x + (props.bumpInfo?.direction.x || 0)) * 32}px;
+  top: ${(props) => (props.position.y - 1 + (props.bumpInfo?.direction.y || 0)) * TILE_SIZE}px;
+  left: ${(props) => (props.position.x + (props.bumpInfo?.direction.x || 0)) * TILE_SIZE}px;
   opacity: ${props => props.bumpInfo ? 0 : 1};
-  width: 32px;
-  height: 64px;
+  width: ${TILE_SIZE}px;
+  height: ${TILE_SIZE * 2}px;
   background-color: #f88;
   box-sizing: border-box;
   border: 2px solid #000;
-  border-radius: 32px;
+  border-radius: ${TILE_SIZE}px;
   z-index: ${(props) => 2 + props.position.y};
   transition: all 0.5s ease-out;
 `;
@@ -117,9 +99,23 @@ function bumpReducer(state: BumpInfo[], action: { type: BUMP_ACTIONS; payload: B
   }
 }
 
+function getDirection(movement: Coordinates) {
+  if (movement.x < 0) {
+    return Direction.LEFT;
+  }
+  if (movement.x > 0) {
+    return Direction.RIGHT;
+  }
+  if (movement.y > 0) {
+    return Direction.DOWN;
+  }
+  return Direction.UP;
+}
+
 export default function GameObjects(props: {
   tiles: Tile[][];
   screenShake: () => void;
+  gameStarted: boolean;
 }) {
   const [playerPosition, setPlayerPosition] = useState<Coordinates>(
     new Coordinates(51, 62)
@@ -127,6 +123,7 @@ export default function GameObjects(props: {
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
   const [playSlideSfx] = useSound(slideSfx);
+  const [playerDirection, setPlayerDirection] = useState(Direction.DOWN);
 
   const [obstacles, setObstacles] = useState([
     new Coordinates(51, 36), // up
@@ -163,7 +160,7 @@ export default function GameObjects(props: {
   function slide(playerMovement: Coordinates) {
     if (moving) return;
 
-    playSlideSfx()
+    playSlideSfx();
 
     const obstaclePosition = findObstaclePosition({
       playerPosition,
@@ -180,14 +177,15 @@ export default function GameObjects(props: {
 
     setMoveDistance(moveDistance);
     setPlayerPosition(newPosition);
+    setPlayerDirection(getDirection(playerMovement));
     setMoving(true);
 
     setTimeout(() => {
       window.scrollTo({
         left:
-          (32 * (newPosition.x + playerPosition.x)) / 2 - window.innerWidth / 2,
+          (TILE_SIZE * (newPosition.x + playerPosition.x)) / 2 - window.innerWidth / 2,
         top:
-          (32 * (newPosition.y + playerPosition.y)) / 2 -
+          (TILE_SIZE * (newPosition.y + playerPosition.y)) / 2 -
           window.innerHeight / 2,
         behavior: 'smooth',
       });
@@ -195,8 +193,8 @@ export default function GameObjects(props: {
 
     setTimeout(() => {
       window.scrollTo({
-        left: 32 * newPosition.x - window.innerWidth / 2,
-        top: 32 * newPosition.y - window.innerHeight / 2,
+        left: TILE_SIZE * newPosition.x - window.innerWidth / 2,
+        top: TILE_SIZE * newPosition.y - window.innerHeight / 2,
         behavior: 'smooth',
       });
     }, moveDistance * 32);
@@ -218,7 +216,7 @@ export default function GameObjects(props: {
   // @ts-ignore
   return (
     <Container>
-      {!moving && (
+      {props.gameStarted && !moving && (
         <GameController>
           <button onClick={() => slide(new Coordinates(0, -1))}>
             ▲
@@ -237,6 +235,7 @@ export default function GameObjects(props: {
       <Player
         position={playerPosition}
         transitionSeconds={moveDistance * 0.05}
+        direction={playerDirection}
       />
       {obstacles.map((obstacle, index) => (
         <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
