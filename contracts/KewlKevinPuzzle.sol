@@ -32,10 +32,10 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
     uint256 constant PUZZLE_HEIGHT = 101;
 
     Coordinates puzzleSize = Coordinates(PUZZLE_WIDTH, PUZZLE_HEIGHT);
-    Coordinates entrance = Coordinates(51, 101);
+    Coordinates entrance = Coordinates(50, 102);
     uint256 public mintPrice = 1 ether;
 
-    uint256 public randomNumber = 5;
+    uint256 public randomNumber = 50;
 
     uint256 constant UP = 0;
     uint256 constant RIGHT = 1;
@@ -131,7 +131,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         pure
         returns (Puzzle memory)
     {
-        Coordinates memory cursor = Coordinates(51, 101);
+        Coordinates memory cursor = Coordinates(50, 102);
         uint256 direction = UP;
         Coordinates[] memory obstacles = new Coordinates[](64);
 
@@ -159,7 +159,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
     }
 
     function puzzle(uint256 tokenId) public view returns (Puzzle memory) {
-        require(_exists(tokenId), 'KKP: Puzzle does not exist.');
+        // require(_exists(tokenId), 'KKP: Puzzle does not exist.');
         return _generatePuzzle(tokenId + randomNumber);
     }
 

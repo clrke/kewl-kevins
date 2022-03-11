@@ -184,30 +184,23 @@ function App() {
   }
 
   return (
-    <div>
-      <ConnectionBtn />
-      <Container shaking={shaking}>
-        {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
-        {tiles &&
-          tiles.map((row, j) => (
-            <TileRow key={j}>
-              {row.map((tile, i) =>
-                tile.type === TileType.PLAIN ? (
-                  <PlainTile key={i}>
-                    <PlainTileSpot position={tile.spot} ref={getRef(tile)} />
-                  </PlainTile>
-                ) : (
-                  <BorderTile
-                    key={i}
-                    ref={getRef(tile)}
-                    special={tile.special}
-                  />
-                )
-              )}
-            </TileRow>
-          ))}
-      </Container>
-    </div>
+    <Container shaking={shaking}>
+      {tiles && <GameObjects tiles={tiles} screenShake={screenShake} />}
+      {tiles &&
+        tiles.map((row, j) => (
+          <TileRow key={j}>
+            {row.map((tile, i) =>
+              tile.type === TileType.PLAIN ? (
+                <PlainTile key={i}>
+                  <PlainTileSpot position={tile.spot} ref={getRef(tile)} />
+                </PlainTile>
+              ) : (
+                <BorderTile key={i} ref={getRef(tile)} special={tile.special} />
+              )
+            )}
+          </TileRow>
+        ))}
+    </Container>
   );
 }
 
