@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from "../constants/tiles";
 
 export enum TileSpecial {
   TOPLEFT,
@@ -24,15 +25,15 @@ export type Tile = {
 };
 
 export default function useTiles(props: {
-  start: {x: number, y: number},
-  end: {x: number, y: number},
+  start: { x: number, y: number },
+  end: { x: number, y: number },
 }) {
   const [tiles, setTiles] = useState<Tile[][] | undefined>();
 
   useEffect(() => {
-    const newTiles = [Array(103).fill({type: TileType.BORDER})].concat(Array(101).fill([])
-      .map(() =>
-        [{ type: TileType.BORDER }].concat(Array(101).fill([1, 2])
+    const newTiles = [Array(PUZZLE_WIDTH + 2).fill({ type: TileType.BORDER })]
+      .concat(Array(PUZZLE_HEIGHT).fill([]).map(() =>
+        [{ type: TileType.BORDER }].concat(Array(PUZZLE_WIDTH).fill({})
           .map(() => ({
             type: TileType.PLAIN,
             spot: {
@@ -40,7 +41,7 @@ export default function useTiles(props: {
               y: Math.floor(Math.random() * 28),
             }
           }))).concat([{ type: TileType.BORDER }])
-      )).concat([Array(103).fill({type: TileType.BORDER})])
+      )).concat([Array(PUZZLE_WIDTH + 2).fill({ type: TileType.BORDER })])
       .map((row, y) => row.map((tile, x) => {
         if (x === 0 && y === 0) {
           return {
@@ -48,19 +49,19 @@ export default function useTiles(props: {
             special: TileSpecial.TOPLEFT,
           };
         }
-        if (x === 102 && y === 0) {
+        if (x === PUZZLE_WIDTH + 1 && y === 0) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.TOPRIGHT,
           };
         }
-        if (x === 0 && y === 102) {
+        if (x === 0 && y === PUZZLE_HEIGHT) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.BOTTOMLEFT,
           };
         }
-        if (x === 102 && y === 102) {
+        if (x === (PUZZLE_WIDTH + 1) && y === (PUZZLE_HEIGHT + 1)) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.BOTTOMRIGHT,

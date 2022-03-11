@@ -32,7 +32,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
     uint256 constant PUZZLE_HEIGHT = 101;
 
     Coordinates puzzleSize = Coordinates(PUZZLE_WIDTH, PUZZLE_HEIGHT);
-    Coordinates entrance = Coordinates(50, 102);
+    Coordinates entrance = Coordinates(50, 61);
     uint256 public mintPrice = 1 ether;
 
     uint256 public randomNumber = 50;
@@ -131,7 +131,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         pure
         returns (Puzzle memory)
     {
-        Coordinates memory cursor = Coordinates(50, 102);
+        Coordinates memory cursor = Coordinates(50, 61);
         uint256 direction = UP;
         Coordinates[] memory obstacles = new Coordinates[](64);
 

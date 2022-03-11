@@ -3,10 +3,10 @@ import './App.css';
 import styled, { css, keyframes } from 'styled-components';
 import useTiles, { Tile, TileSpecial, TileType } from './hooks/useTiles';
 import GameObjects from './components/GameObjects';
-import ConnectionBtn from './components/ConnectionBtn';
 import useSound from 'use-sound';
 import startGameSfx from './audio/startGameSfx.mp3';
 import obstacleBumpSfx from './audio/obstacleBumpSfx.mp3';
+import { PUZZLE_HEIGHT } from "./constants/tiles";
 
 interface ContainerProps {
   shaking: boolean;
@@ -50,10 +50,10 @@ const shakeAnimation = keyframes`
 
 const Container = styled.div<ContainerProps>`
   ${(props) =>
-    props.shaking &&
-    css`
-      animation: ${shakeAnimation} 0.5s linear;
-    `}
+          props.shaking &&
+          css`
+            animation: ${shakeAnimation} 0.5s linear;
+          `}
 `;
 
 const TileRow = styled.div`
@@ -73,7 +73,7 @@ const BorderTile = styled.div<BorderTileProps>`
   background-color: #000;
 
   ${(props) =>
-    props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
+          props.special === TileSpecial.ENTRANCE && `background-color: #ff8;`}
   ${(props) => props.special === TileSpecial.EXIT && `background-color: #8f8;`}
 `;
 
@@ -105,7 +105,7 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
 
 function App() {
   const tiles = useTiles({
-    start: { x: 51, y: 102 },
+    start: { x: 51, y: PUZZLE_HEIGHT + 1 },
     end: { x: 6, y: 0 },
   });
   const [gameStarted, setGameStarted] = useState(false);

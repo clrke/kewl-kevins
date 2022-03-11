@@ -1,4 +1,5 @@
 import Coordinates from "../models/Coordinates";
+import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from "../constants/tiles";
 
 export default function findObstaclePosition(props: {
   playerPosition: Coordinates,
@@ -12,7 +13,7 @@ export default function findObstaclePosition(props: {
     return props.obstacles
       .filter(o => o.y === props.playerPosition.y)
       .filter(o => o.x > props.playerPosition.x)
-      .sort((a, b) => b.x - a.x)[0] ?? new Coordinates(102, props.playerPosition.y);
+      .sort((a, b) => b.x - a.x)[0] ?? new Coordinates(PUZZLE_WIDTH, props.playerPosition.y);
 
   }
   if (props.playerMovement.x < 0) {
@@ -25,7 +26,7 @@ export default function findObstaclePosition(props: {
     return props.obstacles
       .filter(o => o.x === props.playerPosition.x)
       .filter(o => o.y > props.playerPosition.y)
-      .sort((a, b) => a.y - b.y)[0] ?? new Coordinates(props.playerPosition.x, 102);
+      .sort((a, b) => a.y - b.y)[0] ?? new Coordinates(props.playerPosition.x, PUZZLE_HEIGHT);
   }
   return props.obstacles
     .filter(o => o.x === props.playerPosition.x)

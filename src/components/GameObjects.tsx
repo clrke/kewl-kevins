@@ -8,11 +8,12 @@ import '../App.css';
 import useSound from 'use-sound';
 import slideSfx from '../audio/slideSfx.mp3';
 import ConnectionSection from "./ConnectionSection";
+import { PUZZLE_HEIGHT, PUZZLE_WIDTH } from "../constants/tiles";
 
 const Container = styled.div`
   position: absolute;
-  width: ${() => `${32 * 103}px`};
-  height: ${() => `${32 * 103}px`};
+  width: ${() => `${32 * (PUZZLE_WIDTH + 2)}px`};
+  height: ${() => `${32 * (PUZZLE_HEIGHT + 2)}px`};
 `;
 
 const GameController = styled.div`
@@ -114,7 +115,7 @@ export default function GameObjects(props: {
   screenShake: () => void;
 }) {
   const [playerPosition, setPlayerPosition] = useState<Coordinates>(
-    new Coordinates(51, 102)
+    new Coordinates(51, 62)
   );
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);

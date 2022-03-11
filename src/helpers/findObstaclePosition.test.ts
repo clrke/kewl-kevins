@@ -40,7 +40,7 @@ test('Given player movement is right, when obstacles there are no obstacles, the
 
   const obstaclePosition = findObstaclePosition({ playerPosition, playerMovement, obstacles });
 
-  expect(obstaclePosition).toEqual(new Coordinates(102, 10));
+  expect(obstaclePosition).toEqual(new Coordinates(62, 10));
 });
 
 test('Given player movement is right, when obstacles there is an obstacle, then coordinates should be that obstacle', () => {
@@ -95,7 +95,7 @@ test('Given player movement is down, when obstacles there are no obstacles, then
 
   const obstaclePosition = findObstaclePosition({ playerPosition, playerMovement, obstacles });
 
-  expect(obstaclePosition).toEqual(new Coordinates(20, 102));
+  expect(obstaclePosition).toEqual(new Coordinates(20, 62));
 });
 
 test('Given player movement is down, when obstacles there is an obstacle, then coordinates should be that obstacle', () => {
