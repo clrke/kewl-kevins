@@ -28,8 +28,8 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
 
     Counters.Counter private supply;
 
-    uint256 constant PUZZLE_WIDTH = 101;
-    uint256 constant PUZZLE_HEIGHT = 101;
+    uint256 constant PUZZLE_WIDTH = 61;
+    uint256 constant PUZZLE_HEIGHT = 61;
 
     Coordinates puzzleSize = Coordinates(PUZZLE_WIDTH, PUZZLE_HEIGHT);
     Coordinates entrance = Coordinates(50, 61);
