@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.8d0f3f1a.css",
-    "main.js": "/static/js/main.73bdb458.js",
-    "static/js/845.4166eb8f.chunk.js": "/static/js/845.4166eb8f.chunk.js",
-    "static/js/787.5211298e.chunk.js": "/static/js/787.5211298e.chunk.js",
-    "static/media/slideSfx.mp3": "/static/media/slideSfx.d08427e61abc5e53a0e2.mp3",
-    "static/media/obstacleBumpSfx.mp3": "/static/media/obstacleBumpSfx.3a2822c61b3adb8c1bd3.mp3",
-    "static/media/startGameSfx.mp3": "/static/media/startGameSfx.370577e9c021c0131ccc.mp3",
-    "index.html": "/index.html",
-    "main.8d0f3f1a.css.map": "/static/css/main.8d0f3f1a.css.map",
-    "main.73bdb458.js.map": "/static/js/main.73bdb458.js.map",
-    "845.4166eb8f.chunk.js.map": "/static/js/845.4166eb8f.chunk.js.map",
-    "787.5211298e.chunk.js.map": "/static/js/787.5211298e.chunk.js.map"
+    "main.css": "https://clrke.github.io/kewl-kevins/static/css/main.8d0f3f1a.css",
+    "main.js": "https://clrke.github.io/kewl-kevins/static/js/main.971cd338.js",
+    "static/js/845.4166eb8f.chunk.js": "https://clrke.github.io/kewl-kevins/static/js/845.4166eb8f.chunk.js",
+    "static/js/787.5211298e.chunk.js": "https://clrke.github.io/kewl-kevins/static/js/787.5211298e.chunk.js",
+    "static/media/slideSfx.mp3": "https://clrke.github.io/kewl-kevins/static/media/slideSfx.d08427e61abc5e53a0e2.mp3",
+    "static/media/obstacleBumpSfx.mp3": "https://clrke.github.io/kewl-kevins/static/media/obstacleBumpSfx.3a2822c61b3adb8c1bd3.mp3",
+    "static/media/startGameSfx.mp3": "https://clrke.github.io/kewl-kevins/static/media/startGameSfx.370577e9c021c0131ccc.mp3",
+    "index.html": "https://clrke.github.io/kewl-kevins/index.html",
+    "main.8d0f3f1a.css.map": "https://clrke.github.io/kewl-kevins/static/css/main.8d0f3f1a.css.map",
+    "main.971cd338.js.map": "https://clrke.github.io/kewl-kevins/static/js/main.971cd338.js.map",
+    "845.4166eb8f.chunk.js.map": "https://clrke.github.io/kewl-kevins/static/js/845.4166eb8f.chunk.js.map",
+    "787.5211298e.chunk.js.map": "https://clrke.github.io/kewl-kevins/static/js/787.5211298e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8d0f3f1a.css",
-    "static/js/main.73bdb458.js"
+    "static/js/main.971cd338.js"
   ]
 }
