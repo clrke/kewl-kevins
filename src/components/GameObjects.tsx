@@ -7,7 +7,7 @@ import Coordinates from '../models/Coordinates';
 import '../App.css';
 import useSound from 'use-sound';
 import slideSfx from '../audio/slideSfx.mp3';
-import ConnectionBtn from './ConnectionBtn';
+import ConnectionSection from "./ConnectionSection";
 
 const Container = styled.div`
   position: absolute;
@@ -17,11 +17,40 @@ const Container = styled.div`
 
 const GameController = styled.div`
   position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 240px;
+  height: 180px;
   z-index: 200;
-`;
 
-const ArrowKeys = styled.div`
-  text-align: center;
+  > button {
+    position: absolute;
+    border-radius: 100%;
+    height: 70px;
+    width: 70px;
+    border: 2px solid #000;
+    background-color: #88f;
+    color: white;
+
+    :first-child {
+      right: 54px;
+    }
+
+    :nth-child(2) {
+      top: 54px;
+      right: 108px;
+    }
+
+    :nth-child(3) {
+      top: 54px;
+      right: 0;
+    }
+
+    :nth-child(4) {
+      right: 54px;
+      bottom: 0;
+    }
+  }
 `;
 
 interface PlayerProps {
@@ -61,10 +90,6 @@ const Obstacle = styled.div<ObstacleProps>`
   border-radius: 32px;
   z-index: ${(props) => 2 + props.position.y};
   transition: all 0.5s ease-out;
-`;
-
-const ConnectionBtnContainer = styled.div`
-  position: absolute;
 `;
 
 type BumpInfo = {
@@ -187,44 +212,28 @@ export default function GameObjects(props: {
     <Container>
       {!moving && (
         <GameController>
-          <ArrowKeys>
-            <button
-              className="game-button"
-              onClick={() => slide(new Coordinates(0, -1))}
-            >
-              U
-            </button>
-            <button
-              className="game-button"
-              onClick={() => slide(new Coordinates(0, 1))}
-            >
-              D
-            </button>
-            <button
-              className="game-button"
-              onClick={() => slide(new Coordinates(-1, 0))}
-            >
-              L
-            </button>
-            <button
-              className="game-button"
-              onClick={() => slide(new Coordinates(1, 0))}
-            >
-              R
-            </button>
-          </ArrowKeys>
+          <button onClick={() => slide(new Coordinates(0, -1))}>
+            ▲
+          </button>
+          <button onClick={() => slide(new Coordinates(-1, 0))}>
+            ◀
+          </button>
+          <button onClick={() => slide(new Coordinates(1, 0))}>
+            ▶
+          </button>
+          <button onClick={() => slide(new Coordinates(0, 1))}>
+            ▼
+          </button>
         </GameController>
       )}
       <Player
         position={playerPosition}
-        transitionSeconds={moveDistance * 0.049}
+        transitionSeconds={moveDistance * 0.05}
       />
-      {obstacles.map((obstacle) => (
-        <Obstacle position={obstacle} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
+      {obstacles.map((obstacle, index) => (
+        <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
       ))}
-      <ConnectionBtnContainer>
-        <ConnectionBtn />
-      </ConnectionBtnContainer>
+      <ConnectionSection />
     </Container>
   );
 }
