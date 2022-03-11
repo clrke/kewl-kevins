@@ -201,11 +201,11 @@ export default function GameObjects(props: {
       setMoveDistance(1);
       props.screenShake();
       removeObstacle(obstaclePosition, playerMovement);
-    }, 100 + (moveDistance) * 50);
+    }, 50 + (moveDistance) * 50);
 
     setTimeout(() => {
       setMoving(false);
-    }, 100 + (moveDistance + 1) * 50);
+    }, 50 + (moveDistance + 1) * 50);
   }
 
   // @ts-ignore
