@@ -71,21 +71,21 @@ export default function GameObjects(props: {
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
   const [obstacles, setObstacles] = useState([
-    new Coordinates(51, 35),
-    new Coordinates(0, 37),
-    new Coordinates(2, 12),
-    new Coordinates(40, 14),
-    new Coordinates(38, 0),
-    new Coordinates(0, 2),
-    new Coordinates(2, 0),
-    new Coordinates(0, 2),
-    new Coordinates(2, 54),
-    new Coordinates(0, 52),
-    new Coordinates(2, 32),
-    new Coordinates(7, 34),
-    new Coordinates(5, 42),
-    new Coordinates(3, 40),
-    new Coordinates(5, 4),
+    new Coordinates(51, 36),
+    new Coordinates(1, 38),
+    new Coordinates(3, 13),
+    new Coordinates(41, 15),
+    new Coordinates(39, 1),
+    new Coordinates(1, 3),
+    new Coordinates(3, 1),
+    new Coordinates(1, 3),
+    new Coordinates(3, 55),
+    new Coordinates(1, 53),
+    new Coordinates(3, 33),
+    new Coordinates(8, 35),
+    new Coordinates(6, 43),
+    new Coordinates(4, 41),
+    new Coordinates(6, 5),
   ]);
 
   function removeObstacle(obstaclePosition: Coordinates) {
