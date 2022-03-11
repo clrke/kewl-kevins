@@ -103,7 +103,7 @@ export default function GameObjects(props: {
 
     playSlideSfx()
 
-    const newPosition = findObstaclePosition({
+    const obstaclePosition = findObstaclePosition({
       playerPosition,
       playerMovement,
       obstacles,
