@@ -49,13 +49,13 @@ export default function useTiles(props: {
             special: TileSpecial.TOPLEFT,
           };
         }
-        if (x === PUZZLE_WIDTH + 1 && y === 0) {
+        if (x === (PUZZLE_WIDTH + 1) && y === 0) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.TOPRIGHT,
           };
         }
-        if (x === 0 && y === PUZZLE_HEIGHT) {
+        if (x === 0 && y === (PUZZLE_HEIGHT + 1)) {
           return {
             type: TileType.BORDER,
             special: TileSpecial.BOTTOMLEFT,
