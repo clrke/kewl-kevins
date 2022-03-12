@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Coordinates from "../models/Coordinates";
 import { TILE_SIZE } from "../constants/tiles";
+import Direction from "./Direction";
 
 interface PlayerProps {
   position: Coordinates;
@@ -57,6 +58,11 @@ const Pants = styled.rect`
   fill: rgb(0, 101, 255);
 `;
 
+const Feet = styled.rect`
+  stroke: rgb(0, 0, 0);
+  fill: rgb(0, 204, 105);
+`;
+
 const PlayerSvg = styled.svg.attrs({
   version: '1.1',
   xmlns: 'http://www.w3.org/2000/svg',
@@ -65,13 +71,6 @@ const PlayerSvg = styled.svg.attrs({
   width: ${TILE_SIZE}px;
   height: ${TILE_SIZE * 2}px;
 `;
-
-export enum Direction {
-  UP,
-  LEFT,
-  RIGHT,
-  DOWN,
-}
 
 function PlayerSprite(props: PlayerProps) {
   return (
@@ -117,8 +116,8 @@ function PlayerSprite(props: PlayerProps) {
       </Wound>
       <Pants x="25" y="340" width="95" height="110" />
       <Pants x="130" y="335" width="90" height="120" />
-      <Skin x="25" y="430" width="95" height="55" />
-      <Skin x="130" y="430" width="90" height="50" />
+      <Feet x="25" y="430" width="95" height="55" />
+      <Feet x="130" y="430" width="90" height="50" />
     </PlayerSvg>
   )
 }

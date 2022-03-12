@@ -2,20 +2,29 @@ import React, { useReducer, useState } from 'react';
 import styled from 'styled-components';
 import findMoveDistance from '../helpers/findMoveDistance';
 import findObstaclePosition from '../helpers/findObstaclePosition';
-import { Tile } from '../hooks/useTiles';
 import Coordinates from '../models/Coordinates';
 import '../App.css';
 import useSound from 'use-sound';
 import slideSfx from '../audio/slideSfx.mp3';
 import ConnectionSection from "./ConnectionSection";
 import { PUZZLE_HEIGHT, PUZZLE_WIDTH, TILE_SIZE } from "../constants/tiles";
-import Player, { Direction } from "./Player";
+import Player from "./Player";
 import Obstacle, { BumpInfo } from "./Obstacle";
+import Direction, { directionToInt } from "./Direction";
 
 const Container = styled.div`
   position: absolute;
   width: ${() => `${TILE_SIZE * (PUZZLE_WIDTH + 2)}px`};
   height: ${() => `${TILE_SIZE * (PUZZLE_HEIGHT + 2)}px`};
+`;
+
+const GameActions = styled.div`
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  width: 240px;
+  height: 180px;
+  z-index: 200;
 `;
 
 const GameController = styled.div`
@@ -64,12 +73,21 @@ const GameController = styled.div`
 `;
 
 const ADD_BUMP = 'ADD_BUMP';
-type BUMP_ACTIONS = typeof ADD_BUMP;
+const RESTART_BUMPS = 'RESTART_BUMPS';
 
-function bumpReducer(state: BumpInfo[], action: { type: BUMP_ACTIONS; payload: BumpInfo }) {
+type BUMP_ACTIONS = {
+  type: typeof ADD_BUMP,
+  payload: BumpInfo,
+} | {
+  type: typeof RESTART_BUMPS,
+};
+
+function bumpReducer(state: BumpInfo[], action: BUMP_ACTIONS) {
   switch (action.type) {
     case ADD_BUMP:
       return [...state, action.payload];
+    case RESTART_BUMPS:
+      return [];
     default:
       return state;
   }
@@ -89,85 +107,19 @@ function getDirection(movement: Coordinates) {
 }
 
 export default function GameObjects(props: {
-  tiles: Tile[][];
+  end: Coordinates,
+  obstacles: Coordinates[],
   screenShake: () => void;
+  rewardPlayer: (movements: Direction[]) => void;
   gameStarted: boolean;
 }) {
-  const [playerPosition, setPlayerPosition] = useState<Coordinates>(
-    new Coordinates(51, 62)
-  );
+  const start = new Coordinates(51, 62);
+
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>(start);
   const [moving, setMoving] = useState(false);
   const [moveDistance, setMoveDistance] = useState(1);
   const [playSlideSfx] = useSound(slideSfx);
   const [playerDirection, setPlayerDirection] = useState(Direction.DOWN);
-
-  const [obstacles, setObstacles] = useState([
-    new Coordinates(50,9),
-    new Coordinates(58,11),
-    new Coordinates(56,18),
-    new Coordinates(57,16),
-    new Coordinates(55,40),
-    new Coordinates(25,38),
-    new Coordinates(27,14),
-    new Coordinates(42,16),
-    new Coordinates(40,33),
-    new Coordinates(16,31),
-    new Coordinates(18,25),
-    new Coordinates(24,27),
-    new Coordinates(22,48),
-    new Coordinates(19,46),
-    new Coordinates(21,10),
-    new Coordinates(4,12),
-    new Coordinates(6,2),
-    new Coordinates(9,4),
-    new Coordinates(7,26),
-    new Coordinates(4,24),
-    new Coordinates(6,12),
-    new Coordinates(2,14),
-    new Coordinates(4,9),
-    new Coordinates(2,11),
-    new Coordinates(4,9),
-    new Coordinates(52,11),
-    new Coordinates(50,34),
-    new Coordinates(40,32),
-    new Coordinates(42,25),
-    new Coordinates(51,27),
-    new Coordinates(49,26),
-    new Coordinates(53,28),
-    new Coordinates(51,38),
-    new Coordinates(44,36),
-    new Coordinates(46,59),
-    new Coordinates(51,57),
-    new Coordinates(49,28),
-    new Coordinates(60,30),
-    new Coordinates(58,54),
-    new Coordinates(4,52),
-    new Coordinates(6,19),
-    new Coordinates(33,21),
-    new Coordinates(31,4),
-    new Coordinates(47,6),
-    new Coordinates(45,3),
-    new Coordinates(38,5),
-    new Coordinates(40,38),
-    new Coordinates(29,36),
-    new Coordinates(31,30),
-    new Coordinates(32,32),
-    new Coordinates(30,3),
-    new Coordinates(12,5),
-    new Coordinates(14,19),
-    new Coordinates(33,17),
-    new Coordinates(31,6),
-    new Coordinates(2,8),
-    new Coordinates(4,5),
-    new Coordinates(2,7),
-    new Coordinates(4,29),
-    new Coordinates(55,27),
-    new Coordinates(53,24),
-    new Coordinates(59,26),
-    new Coordinates(57,60),
-    new Coordinates(30,58),
-  ].map(c => new Coordinates(c.x + 1, c.y + 1)));
-
   const [bumps, bumpDispatch] = useReducer(bumpReducer, []);
 
   function removeObstacle(position: Coordinates, direction: Coordinates) {
@@ -176,11 +128,25 @@ export default function GameObjects(props: {
       payload: {
         position,
         direction,
+        directionInt: directionToInt(direction),
       },
     });
   }
 
-  const existingObstacles = obstacles.filter(obstacle => !bumps.map(bump => bump.position).includes(obstacle));
+  const existingObstacles = props.obstacles.filter(obstacle => !bumps.map(bump => bump.position).includes(obstacle));
+
+  function restartGame() {
+    setPlayerPosition(start);
+    setMoving(false);
+    setMoveDistance(1);
+    setPlayerDirection(Direction.DOWN);
+    bumpDispatch({type: RESTART_BUMPS});
+    window.scrollTo({
+      left: TILE_SIZE * start.x - window.innerWidth / 2,
+      top: TILE_SIZE * start.y - window.innerHeight / 2,
+      behavior: 'smooth',
+    });
+  }
 
   function slide(playerMovement: Coordinates) {
     if (moving) return;
@@ -225,12 +191,21 @@ export default function GameObjects(props: {
     }, moveDistance * 32);
 
     setTimeout(() => {
-      setPlayerPosition(
-        new Coordinates(newPosition.x, newPosition.y).minus(playerMovement)
-      );
-      setMoveDistance(1);
-      props.screenShake();
-      removeObstacle(obstaclePosition, playerMovement);
+      if (!obstaclePosition.equals(props.end)) {
+        setPlayerPosition(
+          new Coordinates(newPosition.x, newPosition.y).minus(playerMovement)
+        );
+        setMoveDistance(1);
+        props.screenShake();
+        removeObstacle(obstaclePosition, playerMovement);
+        return;
+      }
+
+      setPlayerPosition(obstaclePosition);
+      setMoveDistance(20);
+
+      // reward player.
+      props.rewardPlayer(bumps.map(bump => bump.directionInt));
     }, 50 + (moveDistance) * 50);
 
     setTimeout(() => {
@@ -241,6 +216,11 @@ export default function GameObjects(props: {
   // @ts-ignore
   return (
     <Container>
+      {props.gameStarted && (
+        <GameActions>
+          <button onClick={restartGame}>Restart</button>
+        </GameActions>
+      )}
       {props.gameStarted && !moving && (
         <GameController>
           <button onClick={() => slide(new Coordinates(0, -1))}>
@@ -262,7 +242,7 @@ export default function GameObjects(props: {
         transitionSeconds={moveDistance * 0.05}
         direction={playerDirection}
       />
-      {obstacles.map((obstacle, index) => (
+      {props.obstacles.map((obstacle, index) => (
         <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
       ))}
       <ConnectionSection />

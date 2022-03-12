@@ -6,7 +6,8 @@ import GameObjects from './components/GameObjects';
 import useSound from 'use-sound';
 import startGameSfx from './audio/startGameSfx.mp3';
 import obstacleBumpSfx from './audio/obstacleBumpSfx.mp3';
-import { PUZZLE_HEIGHT, TILE_SIZE } from "./constants/tiles";
+import { TILE_SIZE } from "./constants/tiles";
+import Direction from "./components/Direction";
 
 interface ContainerProps {
   shaking: boolean;
@@ -104,10 +105,7 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
 `;
 
 function App() {
-  const tiles = useTiles({
-    start: { x: 51, y: PUZZLE_HEIGHT + 1 },
-    end: { x: 32, y: 0 },
-  });
+  const {tiles, obstacles, end} = useTiles(1);
   const [gameStarted, setGameStarted] = useState(false);
   const [shaking, setShaking] = useState(false);
 
@@ -164,6 +162,14 @@ function App() {
     setTimeout(() => setShaking(false), 500);
   }
 
+  function rewardPlayer(movements: Direction[]) {
+    console.log("You won!");
+    console.log(movements.length, movements);
+    setShaking(true);
+    playStartGameSfx();
+    setTimeout(() => setShaking(false), 500);
+  }
+
   function getRef(tile: Tile) {
     switch (tile.special) {
       case TileSpecial.TOPLEFT:
@@ -185,7 +191,15 @@ function App() {
 
   return (
     <Container shaking={shaking}>
-      {tiles && <GameObjects tiles={tiles} gameStarted={gameStarted} screenShake={screenShake} />}
+      {tiles && end && obstacles && (
+        <GameObjects
+          gameStarted={gameStarted}
+          obstacles={obstacles}
+          end={end}
+          screenShake={screenShake}
+          rewardPlayer={rewardPlayer}
+        />
+      )}
       {tiles &&
         tiles.map((row, j) => (
           <TileRow key={j}>

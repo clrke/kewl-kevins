@@ -2,10 +2,12 @@ import styled from "styled-components";
 import Coordinates from "../models/Coordinates";
 import { TILE_SIZE } from "../constants/tiles";
 import { useEffect, useState } from "react";
+import Direction from "./Direction";
 
 export type BumpInfo = {
   position: Coordinates,
   direction: Coordinates,
+  directionInt: Direction;
 }
 
 interface ObstacleProps {
@@ -153,7 +155,6 @@ function ObstacleSprite() {
         <Bush />
       );
     default:
-      console.log("Unknown sprite", sprite);
       return <Snowman />;
   }
 }
