@@ -10,6 +10,7 @@ import slideSfx from '../audio/slideSfx.mp3';
 import ConnectionSection from "./ConnectionSection";
 import { PUZZLE_HEIGHT, PUZZLE_WIDTH, TILE_SIZE } from "../constants/tiles";
 import Player, { Direction } from "./Player";
+import Obstacle, { BumpInfo } from "./Obstacle";
 
 const Container = styled.div`
   position: absolute;
@@ -61,31 +62,6 @@ const GameController = styled.div`
     }
   }
 `;
-
-interface ObstacleProps {
-  position: Coordinates;
-  bumpInfo?: BumpInfo;
-}
-
-const Obstacle = styled.div<ObstacleProps>`
-  position: absolute;
-  top: ${(props) => (props.position.y - 1 + (props.bumpInfo?.direction.y || 0)) * TILE_SIZE}px;
-  left: ${(props) => (props.position.x + (props.bumpInfo?.direction.x || 0)) * TILE_SIZE}px;
-  opacity: ${props => props.bumpInfo ? 0 : 1};
-  width: ${TILE_SIZE}px;
-  height: ${TILE_SIZE * 2}px;
-  background-color: #f88;
-  box-sizing: border-box;
-  border: 2px solid #000;
-  border-radius: ${TILE_SIZE}px;
-  z-index: ${(props) => 2 + props.position.y};
-  transition: all 0.5s ease-out;
-`;
-
-type BumpInfo = {
-  position: Coordinates,
-  direction: Coordinates,
-}
 
 const ADD_BUMP = 'ADD_BUMP';
 type BUMP_ACTIONS = typeof ADD_BUMP;
