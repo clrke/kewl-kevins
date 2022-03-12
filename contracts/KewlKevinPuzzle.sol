@@ -178,14 +178,17 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
             collatzCurrent = collatzNext(collatzCurrent);
         }
 
-        shuffle(obstacles, puzzleLength, seed);
-
         return Puzzle(seed, obstacles, puzzleLength);
     }
 
     function puzzle(uint256 tokenId) public view returns (Puzzle memory) {
         // require(_exists(tokenId), 'KKP: Puzzle does not exist.');
-        return _generatePuzzle(tokenId + randomNumber);
+        Puzzle memory rawPuzzle = _generatePuzzle(tokenId + randomNumber);
+
+        // shuffle
+        shuffle(rawPuzzle.obstacles, rawPuzzle.puzzleLength, rawPuzzle.seed);
+
+        return rawPuzzle;
     }
 
     function currentSupply() public view returns (uint256) {
