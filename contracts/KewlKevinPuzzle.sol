@@ -26,7 +26,8 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         uint256 nftId;
     }
 
-    Counters.Counter private supply;
+    Counters.Counter public minted;
+    Counters.Counter public burned;
 
     uint256 constant PUZZLE_WIDTH = 61;
     uint256 constant PUZZLE_HEIGHT = 61;
@@ -34,15 +35,19 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
     Coordinates puzzleSize = Coordinates(PUZZLE_WIDTH, PUZZLE_HEIGHT);
     Coordinates entrance = Coordinates(50, 61);
     uint256 public mintPrice = 1 ether;
+    mapping(uint256 => uint256) public mintTimestamps;
+
+    uint constant SECONDS_DEADLINE = 960;
 
     uint256 public randomNumber = 50;
+    address[] public nftPartners;
 
     uint256 constant UP = 0;
     uint256 constant RIGHT = 1;
     uint256 constant DOWN = 2;
     uint256 constant LEFT = 3;
 
-    constructor() ERC721('Unsolved Kewl Kevin Puzzle', 'KKP') {}
+    constructor() ERC721('Kewl Kevin Puzzle', 'KKP') {}
 
     function collatzNext(uint256 x) internal pure returns (uint256 result) {
         if (x % 2 == 0) {
@@ -62,18 +67,18 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
     }
 
     function _subtractNoNegative(uint256 a, uint256 b)
-        internal
-        pure
-        returns (uint256)
+    internal
+    pure
+    returns (uint256)
     {
         if (a > b) return a - b;
         return 0;
     }
 
     function _newDirection(Coordinates memory cursor, uint256 direction, uint256 seed)
-        internal
-        pure
-        returns (uint256)
+    internal
+    pure
+    returns (uint256)
     {
         if ((direction == UP || direction == DOWN) && cursor.x == 1) {
             return RIGHT;
@@ -96,54 +101,64 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         uint256 direction,
         uint256 rawDistance
     ) internal pure returns (Coordinates memory) {
+        uint256 distance;
         if (direction == UP) {
-            uint256 distance = 1 + rawDistance % (cursor.y - 1);
+            distance = 1 + rawDistance % (cursor.y - 1);
             return Coordinates(cursor.x, _subtractNoNegative(cursor.y, distance));
         }
         if (direction == DOWN) {
-            uint256 distance = 1 + rawDistance % (PUZZLE_HEIGHT - cursor.y - 1);
+            distance = 1 + rawDistance % (PUZZLE_HEIGHT - cursor.y - 1);
             return Coordinates(cursor.x, _min(PUZZLE_HEIGHT - 1, cursor.y + distance));
         }
         if (direction == LEFT) {
-            uint256 distance = 1 + rawDistance % (cursor.x - 1);
+            distance = 1 + rawDistance % (cursor.x - 1);
             return Coordinates(_subtractNoNegative(cursor.x, distance), cursor.y);
         }
-        uint256 distance = 1 + rawDistance % (PUZZLE_WIDTH - cursor.x - 1);
+        distance = 1 + rawDistance % (PUZZLE_WIDTH - cursor.x - 1);
         return Coordinates(_min(PUZZLE_WIDTH - 1, cursor.x + distance), cursor.y);
     }
 
     function _bounceBackCursor(Coordinates memory obstacle, uint256 direction)
-        internal
-        pure
-        returns (Coordinates memory)
+    internal
+    pure
+    returns (Coordinates memory)
     {
         if (direction == UP) {
             return
-                Coordinates(
-                    obstacle.x,
-                    _min(PUZZLE_HEIGHT - 1, obstacle.y + 2)
-                );
+            Coordinates(
+                obstacle.x,
+                _min(PUZZLE_HEIGHT - 1, obstacle.y + 2)
+            );
         }
         if (direction == DOWN) {
             return Coordinates(obstacle.x, _subtractNoNegative(obstacle.y, 2));
         }
         if (direction == LEFT) {
             return
-                Coordinates(_min(PUZZLE_WIDTH - 1, obstacle.x + 2), obstacle.y);
+            Coordinates(_min(PUZZLE_WIDTH - 1, obstacle.x + 2), obstacle.y);
         }
         return Coordinates(_subtractNoNegative(obstacle.x, 2), obstacle.y);
     }
 
-    function _generatePuzzle(uint256 tokenId)
-        internal
-        pure
-        returns (Puzzle memory)
+    function shuffle(Coordinates[] memory obstacles, uint256 length, uint256 seed) internal pure {
+        for (uint256 i = 0; i < length; i++) {
+            uint256 n = i + uint256(keccak256(abi.encodePacked(seed))) % (length - i);
+            Coordinates memory temp = obstacles[n];
+            obstacles[n] = obstacles[i];
+            obstacles[i] = temp;
+        }
+    }
+
+    function _generatePuzzle(uint256 seed)
+    internal
+    pure
+    returns (Puzzle memory)
     {
         Coordinates memory cursor = Coordinates(50, 61);
         uint256 direction = UP;
         Coordinates[] memory obstacles = new Coordinates[](64);
 
-        uint256 collatzCurrent = tokenId;
+        uint256 collatzCurrent = seed;
         uint256 puzzleLength;
 
         for (
@@ -163,7 +178,9 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
             collatzCurrent = collatzNext(collatzCurrent);
         }
 
-        return Puzzle(tokenId, obstacles, puzzleLength);
+        shuffle(obstacles, puzzleLength, seed);
+
+        return Puzzle(seed, obstacles, puzzleLength);
     }
 
     function puzzle(uint256 tokenId) public view returns (Puzzle memory) {
@@ -171,31 +188,62 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         return _generatePuzzle(tokenId + randomNumber);
     }
 
+    function currentSupply() public view returns (uint256) {
+        return minted.current() - burned.current();
+    }
+
     function mint() public payable nonReentrant {
         require(
             msg.value >= mintPrice,
             'KKP: Amount of MATIC sent is incorrect.'
         );
-        // TODO: require that player has Kewl Kevin NFT
+        require(balanceOf(msg.sender) == 0, "KKP: You already have an ongoing puzzle to solve.");
 
-        supply.increment();
-        _safeMint(msg.sender, supply.current());
+        uint256 totalBalance = 0;
+        for (uint256 i = 0; i < nftPartners.length; i++) {
+            totalBalance += ERC721(nftPartners[i]).balanceOf(msg.sender);
+            if (totalBalance > 0) break;
+        }
+        require(totalBalance > 0, "KKP: You don't have an associated NFT with this smart contract.");
+
+        minted.increment();
+        _safeMint(msg.sender, minted.current());
+
+        mintTimestamps[minted.current()] = block.timestamp;
     }
 
     function burnAndClaimReward(uint256 tokenId, uint256[] memory movements)
-        public
-        virtual
+    public
+    virtual
     {
         require(_exists(tokenId), 'KKP: Puzzle does not exist.');
         require(
             ownerOf(tokenId) == msg.sender,
             'KKP: burning from incorrect owner'
         );
-        // TODO: require that not more than 16 minutes has passed
+        if (mintTimestamps[tokenId] + SECONDS_DEADLINE < block.timestamp) {
+            // too late. burning puzzle token and only rewarding 0.1 MATIC.
+            _burn(tokenId);
+            burned.increment();
+            payable(msg.sender).transfer(0.1 ether);
+            return;
+        }
+
         require(movements.length != 0, 'KKP: Solution required.');
+
         // TODO: require that movements do solve the puzzle
+
+        require(currentSupply() > 0, "KKP: Fatal error! Supply Tokens == Burned Tokens.");
+
         _burn(tokenId);
-        payable(msg.sender).transfer(1 ether);
+        burned.increment();
+
+        // reward player
+        payable(msg.sender).transfer(address(this).balance / currentSupply());
+    }
+
+    function setNftPartners(address[] memory newNftPartners) public onlyOwner {
+        nftPartners = newNftPartners;
     }
 
     function withdraw() public onlyOwner {
