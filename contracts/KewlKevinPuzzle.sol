@@ -18,6 +18,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
         uint256 seed;
         Coordinates[] obstacles;
         uint256 puzzleLength;
+        uint256 exitX;
     }
 
     struct Game {
@@ -178,7 +179,7 @@ contract KewlKevinPuzzle is ERC721, ReentrancyGuard, Ownable {
             collatzCurrent = collatzNext(collatzCurrent);
         }
 
-        return Puzzle(seed, obstacles, puzzleLength);
+        return Puzzle(seed, obstacles, puzzleLength, cursor.x);
     }
 
     function puzzle(uint256 tokenId) public view returns (Puzzle memory) {
