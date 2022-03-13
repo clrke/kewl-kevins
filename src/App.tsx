@@ -227,7 +227,7 @@ function App() {
         contractAddress: KK_CONTRACT_ADDRESS,
         functionName: "mintNFT",
         abi: KK_CONTRACT_ABI,
-        msgValue: Moralis.Units.ETH(0.1),
+        msgValue: Moralis.Units.ETH(10),
       },
       onComplete: async () => {
         alert("Please wait for your transaction to finish then refresh the page to have your puzzle be reflected.");
@@ -241,7 +241,7 @@ function App() {
         contractAddress: KKP_CONTRACT_ADDRESS,
         functionName: "mint",
         abi: KKP_CONTRACT_ABI,
-        msgValue: Moralis.Units.ETH(0.1),
+        msgValue: Moralis.Units.ETH(8),
       },
       onComplete: async () => {
         alert("Please wait for your transaction to finish then refresh the page to have your puzzle be reflected.");
@@ -254,8 +254,8 @@ function App() {
       const newWeb3Provider = await Moralis.enableWeb3();
       if (newWeb3Provider) {
         const network = await newWeb3Provider.detectNetwork();
-        if (network.name !== "maticmum") {
-          alert("Please connect to the Polygon Mumbai network.");
+        if (network.name !== "matic") {
+          alert("Please connect to the Polygon network.");
           await Moralis.deactivateWeb3();
           return;
         }
@@ -270,7 +270,7 @@ function App() {
       const NFTs = await Moralis.Web3API.account.getNFTsForContract({
         address: "",
         token_address: KK_CONTRACT_ADDRESS,
-        chain: "mumbai",
+        chain: "polygon",
       });
       setNfts(NFTs.result!.map(nft => {
         const metadata = JSON.parse(nft.metadata!);
@@ -281,7 +281,7 @@ function App() {
       const puzzles = await Moralis.Web3API.account.getNFTsForContract({
         address: "",
         token_address: KKP_CONTRACT_ADDRESS,
-        chain: "mumbai",
+        chain: "polygon",
       });
       setPuzzles(puzzles.result!.map(puzzle => {
         return new Puzzle(+puzzle.token_id);

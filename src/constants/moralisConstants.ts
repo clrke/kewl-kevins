@@ -9,8 +9,8 @@ export const rpcUrl = "https://rpc-mumbai.maticvigil.com/";
 export const blockExplorerUrl = "https://polygonscan.com/";
 
 
-export const KK_CONTRACT_ADDRESS = "0x0eee1a6b105db44edfa4b8b2081d0da2edd7bf10";
-export const KKP_CONTRACT_ADDRESS = "0x96741C69fe3F9542fF31D43c53FbD46aecA7CEB7";
+export const KK_CONTRACT_ADDRESS = "0x6f90f707f0282cc99f6cd82a8863d12d1652bdf3";
+export const KKP_CONTRACT_ADDRESS = "0x4D47D6658FFa7be86a2566CbE09241A6E2213789";
 export const KK_CONTRACT_ABI = [{
   "inputs": [],
   "stateMutability": "nonpayable",
