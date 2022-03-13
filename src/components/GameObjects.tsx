@@ -12,6 +12,7 @@ import Player from "./Player";
 import Obstacle, { BumpInfo } from "./Obstacle";
 import Direction, { directionToInt } from "./Direction";
 import KewlKevin from "../models/KewlKevin";
+import BlueButton from "./BlueButton";
 
 const Container = styled.div`
   position: absolute;
@@ -220,7 +221,7 @@ export default function GameObjects(props: {
     <Container>
       {props.gameStarted && (
         <GameActions>
-          <button onClick={restartGame}>Restart</button>
+          <BlueButton onClick={restartGame}>Restart</BlueButton>
         </GameActions>
       )}
       {props.gameStarted && !moving && (
