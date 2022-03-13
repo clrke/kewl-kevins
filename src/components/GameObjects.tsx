@@ -245,7 +245,7 @@ export default function GameObjects(props: {
       {props.obstacles.map((obstacle, index) => (
         <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />
       ))}
-      <ConnectionSection />
+      {/*<ConnectionSection />*/}
     </Container>
   );
 }

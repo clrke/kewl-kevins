@@ -36,8 +36,21 @@ export default function useTiles(tokenId?: number) {
 
     (async () => {
       const start = new Coordinates(51, PUZZLE_HEIGHT + 1 );
-      const end = new Coordinates(32, 0);
+      const end = new Coordinates(5, 0);
       const newObstacles = [
+        new Coordinates(4,52),
+        new Coordinates(38,30),
+        new Coordinates(13,37),
+        new Coordinates(50,9),
+        new Coordinates(58,11),
+        new Coordinates(2,35),
+        new Coordinates(26,28),
+        new Coordinates(56,30),
+        new Coordinates(28,10),
+        new Coordinates(11,28),
+        new Coordinates(40,12),
+        new Coordinates(2,50),
+        /*
         new Coordinates(50, 9),
         new Coordinates(58, 11),
         new Coordinates(56, 18),
@@ -102,6 +115,7 @@ export default function useTiles(tokenId?: number) {
         new Coordinates(59, 26),
         new Coordinates(57, 60),
         new Coordinates(30, 58),
+         */
       ];
 
       const newTiles = [Array(PUZZLE_WIDTH + 2).fill({ type: TileType.BORDER })]
