@@ -11,6 +11,7 @@ import { PUZZLE_HEIGHT, PUZZLE_WIDTH, TILE_SIZE } from "../constants/tiles";
 import Player from "./Player";
 import Obstacle, { BumpInfo } from "./Obstacle";
 import Direction, { directionToInt } from "./Direction";
+import KewlKevin from "../models/KewlKevin";
 
 const Container = styled.div`
   position: absolute;
@@ -110,6 +111,7 @@ export default function GameObjects(props: {
   end: Coordinates,
   obstacles: Coordinates[],
   screenShake: () => void;
+  nft: KewlKevin,
   rewardPlayer: (movements: Direction[]) => void;
   gameStarted: boolean;
 }) {
@@ -241,6 +243,7 @@ export default function GameObjects(props: {
         position={playerPosition}
         transitionSeconds={moveDistance * 0.05}
         direction={playerDirection}
+        nft={props.nft}
       />
       {props.obstacles.map((obstacle, index) => (
         <Obstacle position={obstacle} key={index} bumpInfo={bumps.filter(bump => bump.position === obstacle)[0]} />

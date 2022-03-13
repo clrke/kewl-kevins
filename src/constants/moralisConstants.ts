@@ -10,7 +10,7 @@ export const blockExplorerUrl = "https://polygonscan.com/";
 
 
 export const KK_CONTRACT_ADDRESS = "0x0eee1a6b105db44edfa4b8b2081d0da2edd7bf10";
-export const KKP_CONTRACT_ADDRESS = "0xabc72a7e6b333fd91c4e1b3107eb79117079f911";
+export const KKP_CONTRACT_ADDRESS = "0x96741C69fe3F9542fF31D43c53FbD46aecA7CEB7";
 export const KK_CONTRACT_ABI = [{
   "inputs": [],
   "stateMutability": "nonpayable",
@@ -211,7 +211,11 @@ export const KK_CONTRACT_ABI = [{
   "type": "function"
 }, { "inputs": [], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" }];
 
-export const KKP_CONTRACT_ABI = [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, {
+export const KKP_CONTRACT_ABI = [{
+  "inputs": [],
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+}, {
   "anonymous": false,
   "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, {
     "indexed": true,

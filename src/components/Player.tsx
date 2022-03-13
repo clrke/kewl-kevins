@@ -2,11 +2,13 @@ import styled from "styled-components";
 import Coordinates from "../models/Coordinates";
 import { TILE_SIZE } from "../constants/tiles";
 import Direction from "./Direction";
+import KewlKevin from "../models/KewlKevin";
 
 interface PlayerProps {
   position: Coordinates;
   direction: Direction;
   transitionSeconds: number;
+  nft: KewlKevin;
 }
 
 const Container = styled.div<PlayerProps>`
@@ -19,9 +21,13 @@ const Container = styled.div<PlayerProps>`
   transition: all ${(props) => props.transitionSeconds}s linear;
 `;
 
-const Skin = styled.ellipse`
+interface Fillable {
+  fill: string;
+}
+
+const Skin = styled.ellipse<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(0, 204, 105);
+  fill: #${props => props.fill};
 `;
 
 const Sclera = styled.ellipse`
@@ -38,29 +44,29 @@ const Teeth = styled.rect`
   fill: rgb(255, 205, 27);
 `;
 
-const Brain = styled.ellipse`
+const Brain = styled.ellipse<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(255, 89, 255);
+  fill: #${props => props.fill};
 `;
 
-const Shirt = styled.rect`
+const Shirt = styled.rect<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(130, 52, 37);
+  fill: #${props => props.fill};
 `;
 
-const Wound = styled.ellipse`
+const Wound = styled.ellipse<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(251, 37, 34);
+  fill: #${props => props.fill};
 `;
 
-const Pants = styled.rect`
+const Pants = styled.rect<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(0, 101, 255);
+  fill: #${props => props.fill};
 `;
 
-const Feet = styled.rect`
+const Feet = styled.rect<Fillable>`
   stroke: rgb(0, 0, 0);
-  fill: rgb(0, 204, 105);
+  fill: #${props => props.fill};
 `;
 
 const PlayerSvg = styled.svg.attrs({
@@ -79,7 +85,7 @@ function PlayerSprite(props: PlayerProps) {
       width="250" height="500"
       transform={[Direction.LEFT , Direction.RIGHT].includes(props.direction) ? "scale(-1, 1)" : ""}
     >
-      <Skin cx="120" cy="120" rx="100" ry="100">
+      <Skin fill={props.nft.metadata.attributes[0].value} cx="120" cy="120" rx="100" ry="100">
         <title>Head</title>
       </Skin>
       <g transform="matrix(1, 0, 0, 1, 1, 0)">
@@ -103,21 +109,21 @@ function PlayerSprite(props: PlayerProps) {
           </g>
         )}
       </g>
-      <Brain cx="79.692" cy="40" rx="50" ry="25"
+      <Brain fill={props.nft.metadata.attributes[1].value} cx="79.692" cy="40" rx="50" ry="25"
              transform="matrix(0.927184, -0.374607, 0.374607, 0.927184, -18.149019, 34.675785)">
         <title>Brain</title>
       </Brain>
-      <Shirt x="20" y="202" width="200" height="150">
+      <Shirt fill={props.nft.metadata.attributes[3].value} x="20" y="202" width="200" height="150">
         <title>Shirt</title>
       </Shirt>
-      <Wound cx="79.692" cy="40" rx="50" ry="25"
+      <Wound fill={props.nft.metadata.attributes[4].value} cx="79.692" cy="40" rx="50" ry="25"
              transform="matrix(-0.777146, -0.62932, 0.62932, -0.777146, 197.420609, 344.853119)">
         <title>Wound</title>
       </Wound>
-      <Pants x="25" y="340" width="95" height="110" />
-      <Pants x="130" y="335" width="90" height="120" />
-      <Feet x="25" y="430" width="95" height="55" />
-      <Feet x="130" y="430" width="90" height="50" />
+      <Pants fill={props.nft.metadata.attributes[5].value} x="25" y="340" width="95" height="110" />
+      <Pants fill={props.nft.metadata.attributes[5].value} x="130" y="335" width="90" height="120" />
+      <Feet fill={props.nft.metadata.attributes[0].value} x="25" y="430" width="95" height="55" />
+      <Feet fill={props.nft.metadata.attributes[0].value} x="130" y="430" width="90" height="50" />
     </PlayerSvg>
   )
 }

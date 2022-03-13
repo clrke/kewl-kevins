@@ -38,7 +38,7 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
 
     Coordinates puzzleSize = Coordinates(PUZZLE_WIDTH, PUZZLE_HEIGHT);
     Coordinates entrance = Coordinates(50, 61);
-    uint256 public mintPrice = 1 ether;
+    uint256 public mintPrice = 8 ether;
     mapping(uint256 => uint256) public mintTimestamps;
 
     uint constant SECONDS_DEADLINE = 960;
@@ -59,7 +59,8 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
         0xb0897686c545045aFc77CF20eC7A532E3120E0F1  // LINK Token
     ) {
         keyHash = 0xf86195cf7690c55907b2b611ebb7343a6f649bff128701cc542f0569e2c549da;
-        fee = 0.00001 * 10 ** 18; // 0.1 LINK (Varies by network)
+        fee = 0.00001 * 10 ** 18;
+        // 0.00001 LINK (Varies by network)
     }
 
     function collatzNext(uint256 x) internal pure returns (uint256 result) {
@@ -111,23 +112,52 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
 
     function _createObstacle(
         Coordinates memory cursor,
+        Coordinates[] memory obstacles,
+        uint256 puzzleLength,
         uint256 direction,
         uint256 rawDistance
     ) internal pure returns (Coordinates memory) {
+        uint256 obstacleIndex = _findObstacleIndex(cursor, obstacles, puzzleLength, direction);
         uint256 distance;
-        if (direction == UP) {
-            distance = 1 + rawDistance % (cursor.y - 1);
-            return Coordinates(cursor.x, _subtractNoNegative(cursor.y, distance));
+
+        if (obstacleIndex == 64) {
+            if (direction == UP) {
+                distance = 1 + rawDistance % (cursor.y - 1);
+                return Coordinates(cursor.x, _subtractNoNegative(cursor.y, distance));
+            }
+            if (direction == DOWN) {
+                distance = 1 + rawDistance % (PUZZLE_HEIGHT - cursor.y - 1);
+                return Coordinates(cursor.x, _min(PUZZLE_HEIGHT - 1, cursor.y + distance));
+            }
+            if (direction == LEFT) {
+                distance = 1 + rawDistance % (cursor.x - 1);
+                return Coordinates(_subtractNoNegative(cursor.x, distance), cursor.y);
+            }
+            distance = 1 + rawDistance % (PUZZLE_WIDTH - cursor.x - 1);
+            return Coordinates(_min(PUZZLE_WIDTH - 1, cursor.x + distance), cursor.y);
         }
+
+        Coordinates memory obstacle = obstacles[obstacleIndex];
+        if (direction == UP) {
+            if (cursor.y - obstacle.y <= 1) return obstacle;
+            distance = 1 + rawDistance % (cursor.y - obstacle.y - 1);
+            return Coordinates(cursor.x, cursor.y - distance);
+        }
+
         if (direction == DOWN) {
-            distance = 1 + rawDistance % (PUZZLE_HEIGHT - cursor.y - 1);
+            if (obstacle.y - cursor.y <= 1) return obstacle;
+            distance = 1 + rawDistance % (obstacle.y - cursor.y - 1);
             return Coordinates(cursor.x, _min(PUZZLE_HEIGHT - 1, cursor.y + distance));
         }
+
         if (direction == LEFT) {
-            distance = 1 + rawDistance % (cursor.x - 1);
+            if (cursor.x - obstacle.x <= 1) return obstacle;
+            distance = 1 + rawDistance % (cursor.x - obstacle.x - 1);
             return Coordinates(_subtractNoNegative(cursor.x, distance), cursor.y);
         }
-        distance = 1 + rawDistance % (PUZZLE_WIDTH - cursor.x - 1);
+
+        if (obstacle.x - cursor.x <= 1) return obstacle;
+        distance = 1 + rawDistance % (obstacle.x - cursor.x - 1);
         return Coordinates(_min(PUZZLE_WIDTH - 1, cursor.x + distance), cursor.y);
     }
 
@@ -199,6 +229,8 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
         ) {
             Coordinates memory newObstacle = _createObstacle(
                 cursor,
+                obstacles,
+                puzzleLength,
                 direction,
                 collatzCurrent
             );
@@ -213,7 +245,7 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
     }
 
     function puzzle(uint256 tokenId) public view returns (Puzzle memory) {
-        // require(_exists(tokenId), 'KKP: Puzzle does not exist.');
+        require(_exists(tokenId), 'KKP: Puzzle does not exist.');
         Puzzle memory rawPuzzle = _generatePuzzle(tokenId + randomNumber);
 
         // shuffle
@@ -231,14 +263,15 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
             msg.value >= mintPrice,
             'KKP: Amount of MATIC sent is incorrect.'
         );
-        require(balanceOf(msg.sender) == 0, "KKP: You already have an ongoing puzzle to solve.");
+        // Let's allow users to mint multiples for now
+        // require(balanceOf(msg.sender) == 0, "KKP: You already have an ongoing puzzle to solve.");
 
         uint256 totalBalance = 0;
         for (uint256 i = 0; i < nftPartners.length; i++) {
             totalBalance += ERC721(nftPartners[i]).balanceOf(msg.sender);
             if (totalBalance > 0) break;
         }
-        // require(totalBalance > 0, "KKP: You don't have an associated NFT with this smart contract.");
+        require(totalBalance > 0, "KKP: You don't have an associated NFT with this smart contract.");
 
         minted.increment();
         _safeMint(msg.sender, minted.current());
@@ -280,7 +313,7 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
     }
 
     function isCorrectSolution(uint256 tokenId, uint256[] memory movements) public view returns (bool) {
-        // require(movements.length != 0, 'KKP: Solution required.');
+        require(movements.length != 0, 'KKP: Solution required.');
 
         Puzzle memory burnPuzzle = _generatePuzzle(tokenId + randomNumber);
 
@@ -296,6 +329,7 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
                 cursor = _bounceBackWall(cursor, movements[i]);
             } else {
                 cursor = _bounceBackCursor(obstacles[obstacleIndex], movements[i]);
+                // BRING THIS BACK IF YOU WANT V1 OF THE GAME
                 obstacles[obstacleIndex] = Coordinates(64, 64);
             }
         }
@@ -355,4 +389,7 @@ contract KewlKevinPuzzle is VRFConsumerBase, ERC721, ReentrancyGuard, Ownable {
     function withdraw() public onlyOwner {
         payable(owner()).transfer(address(this).balance);
     }
+
+    // to increase reward pool.
+    function deposit() public payable nonReentrant {}
 }

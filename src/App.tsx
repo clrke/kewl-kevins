@@ -9,13 +9,14 @@ import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
 import obstacleBumpSfx from './audio/obstacleBumpSfx.mp3';
 import { TILE_SIZE } from "./constants/tiles";
 import Direction from "./components/Direction";
-import { components } from "moralis/types/generated/web3Api";
 import {
   KK_CONTRACT_ABI,
   KK_CONTRACT_ADDRESS,
   KKP_CONTRACT_ABI,
   KKP_CONTRACT_ADDRESS
 } from "./constants/moralisConstants";
+import Puzzle from "./models/Puzzle";
+import KewlKevin from "./models/KewlKevin";
 
 interface ContainerProps {
   shaking: boolean;
@@ -113,13 +114,6 @@ const PlainTileSpot = styled.div.attrs((props: PlainTileSpotProps) => ({
   background-color: #eee;
 `;
 
-class KewlKevin {
-  constructor(readonly tokenId: number, readonly metadata: any, readonly image: any) {}
-}
-
-class Puzzle {
-  constructor(readonly tokenId: number) {}
-}
 
 const ConnectButtonContainer = styled.div`
   flex: 1;
@@ -140,6 +134,7 @@ const BlueButton = styled.button`
   cursor: pointer;
   text-transform: capitalize;
   transition: all 0.5s ease-in-out;
+
   :hover {
     background-color: #61dafb;
   }
@@ -153,9 +148,9 @@ const KewlKevinContainer = styled.div`
   cursor: pointer;
   padding: 24px;
   display: inline-block;
-  
+
   :hover {
-    box-shadow: 0 0 8px 0 rgba(255,184,5,1);
+    box-shadow: 0 0 8px 0 rgba(255, 184, 5, 1);
   }
 `;
 
@@ -178,10 +173,10 @@ function App() {
 
   const [nfts, setNfts] = useState<KewlKevin[] | undefined>(undefined);
   const [puzzles, setPuzzles] = useState<Puzzle[] | undefined>(undefined);
-  const [nftId, setNftId] = useState<number | undefined>(undefined);
+  const [nft, setNft] = useState<KewlKevin | undefined>(undefined);
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
 
-  const {tiles, obstacles, end} = useTiles(puzzleId);
+  const { tiles, obstacles, end } = useTiles(Moralis, puzzleId);
   const [gameStarted, setGameStarted] = useState(false);
   const [shaking, setShaking] = useState(false);
 
@@ -246,7 +241,7 @@ function App() {
         contractAddress: KKP_CONTRACT_ADDRESS,
         functionName: "mint",
         abi: KKP_CONTRACT_ABI,
-        msgValue: Moralis.Units.ETH(1),
+        msgValue: Moralis.Units.ETH(0.1),
       },
       onComplete: async () => {
         alert("Please wait for your transaction to finish then refresh the page to have your puzzle be reflected.");
@@ -288,7 +283,6 @@ function App() {
         token_address: KKP_CONTRACT_ADDRESS,
         chain: "mumbai",
       });
-      console.log(puzzles);
       setPuzzles(puzzles.result!.map(puzzle => {
         return new Puzzle(+puzzle.token_id);
       }));
@@ -331,9 +325,18 @@ function App() {
     setTimeout(() => setShaking(false), 500);
   }
 
-  function rewardPlayer(movements: Direction[]) {
+  async function rewardPlayer(movements: Direction[]) {
     console.log("You won!");
-    console.log(movements.length, movements);
+    console.log(puzzleId, movements.length, movements);
+    await Moralis.executeFunction({
+      contractAddress: KKP_CONTRACT_ADDRESS,
+      functionName: "burnAndClaimReward",
+      abi: KKP_CONTRACT_ABI,
+      params: {
+        tokenId: puzzleId,
+        movements,
+      },
+    });
     setShaking(true);
     playStartGameSfx();
     setTimeout(() => setShaking(false), 500);
@@ -360,7 +363,7 @@ function App() {
 
   return (
     <Container shaking={shaking}>
-      {!nftId && (
+      {!nft && (
         <ChooseNftContainer>
           <h1>Choose your Kewl Kevin:</h1>
           <ConnectButtonContainer>
@@ -379,7 +382,7 @@ function App() {
           {isAuthenticated && nfts && (
             <div>
               {nfts.length ? nfts.map(nft => (
-                <KewlKevinContainer key={nft.tokenId} onClick={() => setNftId(nft.tokenId)}>
+                <KewlKevinContainer key={nft.tokenId} onClick={() => setNft(nft)}>
                   <img src={nft.image} alt={nft.tokenId.toString()} />
                 </KewlKevinContainer>
               )) : (
@@ -392,7 +395,7 @@ function App() {
           )}
         </ChooseNftContainer>
       )}
-      {nftId && !puzzleId && (
+      {nft && !puzzleId && (
         <ChooseNftContainer>
           <h1>Choose your Puzzle:</h1>
           <ConnectButtonContainer>
@@ -423,11 +426,12 @@ function App() {
           )}
         </ChooseNftContainer>
       )}
-      {tiles && end && obstacles && (
+      {nft && tiles && end && obstacles && (
         <GameObjects
           gameStarted={gameStarted}
           obstacles={obstacles}
           end={end}
+          nft={nft}
           screenShake={screenShake}
           rewardPlayer={rewardPlayer}
         />
